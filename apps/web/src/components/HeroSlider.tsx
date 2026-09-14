@@ -14,6 +14,9 @@ import {
 } from "lucide-react";
 import { HERO_SLIDES } from "@/lib/brand";
 
+// Auto-advance disabled for now (user request) — flip to true to restore
+// the 5.5s rotation. Arrows/dots/hover-pause still work either way.
+const AUTO_ROTATE = false;
 const ROTATE_MS = 5500;
 
 const PERK_ICONS = [
@@ -45,6 +48,7 @@ export function HeroSlider() {
   }, [pathname]);
 
   useEffect(() => {
+    if (!AUTO_ROTATE) return;
     if (paused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const t = setInterval(() => {
@@ -71,6 +75,7 @@ export function HeroSlider() {
             aria-hidden={!active}
           >
             <div className="hero-banner-scrim" />
+            <span className="hero-slot-num">{slide.slotNum}</span>
           </div>
         );
       })}

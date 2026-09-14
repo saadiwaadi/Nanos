@@ -8,6 +8,7 @@ import {
   FREE_SHIPPING_THRESHOLD,
 } from "@/lib/cart";
 import { ImgOrSlot } from "@/components/ImgOrSlot";
+import { productSlotNums } from "@/lib/imageSlots";
 
 /**
  * CART — fully interactive UI (prototype renderCart markup).
@@ -81,6 +82,8 @@ export default function CartPage() {
                     src={item.img}
                     alt={item.name}
                     slotName={`PRODUCT-IMAGE:${item.productId}`}
+                    slotNum={productSlotNums(item.productId).num}
+                    showBadge
                   />
                 </Link>
                 <div className="cart-line-info">

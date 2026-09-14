@@ -5,6 +5,7 @@ import { Heart, Truck, RotateCcw, Headset } from "lucide-react";
 import type { Product } from "@nanospk/shared-types";
 import { cn } from "@/lib/api";
 import { useCart } from "@/lib/cart";
+import { productSlotNums } from "@/lib/imageSlots";
 
 function fmtPrice(n: number) {
   return "PKR " + n.toLocaleString("en-PK");
@@ -21,6 +22,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
 
   const gallery = p.gallery.length > 0 ? p.gallery : [p.hero];
   const soldOut = (s: string) => p.outOfStock.includes(s);
+  const slotNums = productSlotNums(p.id);
 
   function handleAdd() {
     if (!size || soldOut(size)) return;
@@ -42,6 +44,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
         <div className="pdp-main-image">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={gallery[imgIdx]} alt={p.name} />
+          <span className="img-slot-badge">{slotNums.galleryNums[imgIdx] ?? slotNums.num}</span>
         </div>
         <div className="pdp-thumbs">
           {gallery.map((g, i) => (
@@ -52,6 +55,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={g} alt="" />
+              <span className="img-slot-badge">{slotNums.galleryNums[i] ?? slotNums.num}</span>
             </div>
           ))}
         </div>

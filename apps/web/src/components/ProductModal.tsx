@@ -12,6 +12,7 @@ import {
 import type { Product } from "@nanospk/shared-types";
 import { useCart, fmtPrice } from "@/lib/cart";
 import { useProductModal } from "./ProductModalContext";
+import { productSlotNums } from "@/lib/imageSlots";
 
 const SIZE_CHART = [
   { us: "US 6", uk: "UK 5.5", eu: "39", cm: "24.5" },
@@ -147,6 +148,7 @@ export function ProductModal() {
   const gotoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const product: Product | null = selectedProduct;
+  const slotNums = product ? productSlotNums(product.id) : null;
   const gallery =
     product && product.gallery.length > 0
       ? product.gallery
@@ -333,6 +335,11 @@ export function ProductModal() {
                 onLoad={onImgLoad}
                 onError={onImgLoad}
               />
+              {slotNums && (
+                <span className="img-slot-badge">
+                  {slotNums.galleryNums[imgIdx] ?? slotNums.num}
+                </span>
+              )}
             </div>
             {gallery.length > 1 && (
               <div className="pmq-thumbs">
@@ -353,6 +360,11 @@ export function ProductModal() {
                     aria-pressed={i === imgIdx}
                   >
                     <img src={g} alt="" />
+                    {slotNums && (
+                      <span className="img-slot-badge">
+                        {slotNums.galleryNums[i] ?? slotNums.num}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>

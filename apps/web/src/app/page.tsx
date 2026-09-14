@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { PlaceholderSlot } from "@/components/PlaceholderSlot";
 import { ImgOrSlot } from "@/components/ImgOrSlot";
 import { SocialProductGrid } from "@/components/SocialProductGrid";
+import { IMAGE_SLOTS, FEED_SLOT_NUMS } from "@/lib/imageSlots";
 
 export const metadata = { title: "nanos.pk — Crocs & Trousers" };
 
@@ -33,11 +34,24 @@ export default async function HomePage() {
               ))}
             </div>
           ) : (
-            <PlaceholderSlot
-              name="NEW-ARRIVALS"
-              feeds="GET /products?tag=NEW (live when API is up)"
-              note="Shows the first 4 products tagged NEW once the API is reachable."
-            />
+            <div className="product-grid">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="product-card">
+                  <div className="product-thumb">
+                    <div className="thumb-slot">
+                      <span className="slot-box">
+                        <b className="slot-num">IMG-{10 + i}</b>
+                        [SLOT: PRODUCT-IMAGE]
+                        <span>catalog position {i + 1} — tag NEW to appear here</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="product-info">
+                    <h3>Product {i + 1}</h3>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </section>
 
@@ -49,6 +63,7 @@ export default async function HomePage() {
                 src=""
                 alt=""
                 slotName="PROMO-IMAGE-CROCS"
+                slotNum={IMAGE_SLOTS.promoCrocs}
                 slotClassName="promo-media"
               />
               <div className="promo-content">
@@ -66,6 +81,7 @@ export default async function HomePage() {
                 src=""
                 alt=""
                 slotName="PROMO-IMAGE-TROUSERS"
+                slotNum={IMAGE_SLOTS.promoTrousers}
                 slotClassName="promo-media"
               />
               <div className="promo-content">
@@ -89,11 +105,33 @@ export default async function HomePage() {
           {products.length > 0 ? (
             <SocialProductGrid products={products} />
           ) : (
-            <PlaceholderSlot
-              name="HOME-PRODUCT-FEED"
-              feeds="GET /products (live when API is up)"
-              note="Shows the social feed strip once the API is reachable."
-            />
+            <div className="social-grid">
+              <div className="social-tile dark-tile">
+                <p>
+                  nanos.pk
+                  <br />
+                  <span style={{ fontSize: 11, fontWeight: 500, color: "#999" }}>
+                    CROCS / TROUSERS
+                  </span>
+                </p>
+              </div>
+              {FEED_SLOT_NUMS.map((num) => (
+                <div key={num} className="social-tile">
+                  <p>
+                    {num}
+                    <span className="tile-underline" />
+                  </p>
+                </div>
+              ))}
+              <div className="social-tile lime-tile">
+                <p>
+                  KEEP IT SIMPLE.
+                  <br />
+                  WEAR IT YOUR WAY.
+                  <span className="tile-underline" />
+                </p>
+              </div>
+            </div>
           )}
         </section>
       </div>

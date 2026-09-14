@@ -59,9 +59,9 @@ const PRODUCTS: ProtoProduct[] = [
     ],
     sizes: ['UK 6','UK 7','UK 8','UK 9','UK 10','UK 11'],
     outOfStock: ['UK 11'],
-    img: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&h=600&fit=crop',
+    img: 'https://res.cloudinary.com/tp1vyxi3/image/upload/v1789371558/ChatGPT_Image_Sep_13_2026_05_44_14_AM.png',
     gallery: [
-      'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=800&h=800&fit=crop',
+      'https://res.cloudinary.com/tp1vyxi3/image/upload/v1789371558/ChatGPT_Image_Sep_13_2026_05_44_14_AM.png',
       'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&h=800&fit=crop',
       'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&h=800&fit=crop'
     ],
@@ -78,9 +78,9 @@ const PRODUCTS: ProtoProduct[] = [
     ],
     sizes: ['UK 6','UK 7','UK 8','UK 9','UK 10','UK 11'],
     outOfStock: [],
-    img: 'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=600&h=600&fit=crop',
+    img: 'https://res.cloudinary.com/tp1vyxi3/image/upload/v1789413175/ChatGPT_Image_Sep_14_2026_12_12_47_PM.png',
     gallery: [
-      'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=800&h=800&fit=crop',
+      'https://res.cloudinary.com/tp1vyxi3/image/upload/v1789413175/ChatGPT_Image_Sep_14_2026_12_12_47_PM.png',
       'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&h=800&fit=crop',
       'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&h=800&fit=crop'
     ],

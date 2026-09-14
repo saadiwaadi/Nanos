@@ -7,6 +7,7 @@ import type { Product } from "@nanospk/shared-types";
 import { ImgOrSlot } from "./ImgOrSlot";
 import { useCart } from "@/lib/cart";
 import { useProductModal } from "./ProductModalContext";
+import { productSlotNums } from "@/lib/imageSlots";
 
 function fmtPrice(n: number) {
   return "PKR " + n.toLocaleString("en-PK");
@@ -22,6 +23,7 @@ function badgeClass(p: Product): string | null {
 
 export function ProductCard({ product: p }: { product: Product }) {
   const badge = badgeClass(p);
+  const slot = productSlotNums(p.id);
   const [added, setAdded] = useState(false);
   const [wished, setWished] = useState(false);
   const cart = useCart();
@@ -52,7 +54,13 @@ export function ProductCard({ product: p }: { product: Product }) {
   return (
     <div className="product-card">
       <Link href={`/product/${p.id}`} className="product-thumb" onClick={handleCardClick}>
-        <ImgOrSlot src={p.hero} alt={p.name} slotName={`PRODUCT-IMAGE:${p.id}`} />
+        <ImgOrSlot
+          src={p.hero}
+          alt={p.name}
+          slotName={`PRODUCT-IMAGE:${p.id}`}
+          slotNum={slot.num}
+          showBadge
+        />
         <div className="badges">
           {badge && (
             <span className={badge}>

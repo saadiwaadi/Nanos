@@ -1,7 +1,10 @@
 export const NAV_LINKS = [] as const;
 
+import { IMAGE_SLOTS } from "./imageSlots";
+
 export const HERO_SLIDES = [
   {
+    slotNum: IMAGE_SLOTS.hero1,
     eyebrowLime: "Comfort",
     eyebrowRest: "× Style",
     title: "EVERYDAY<br>COMFORT.",
@@ -15,6 +18,7 @@ export const HERO_SLIDES = [
     ],
   },
   {
+    slotNum: IMAGE_SLOTS.hero2,
     eyebrowLime: "Relaxed",
     eyebrowRest: "× Fit",
     title: "BUILT<br>TO MOVE.",
@@ -29,6 +33,7 @@ export const HERO_SLIDES = [
     ],
   },
   {
+    slotNum: IMAGE_SLOTS.hero3,
     eyebrowLime: "Marked",
     eyebrowRest: "× Down",
     title: "STEALS<br>WHILE THEY LAST.",

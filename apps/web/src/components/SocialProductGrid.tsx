@@ -4,6 +4,7 @@ import type { Product } from "@nanospk/shared-types";
 import { ImgOrSlot } from "./ImgOrSlot";
 import { useProductModal } from "./ProductModalContext";
 import { fmtPrice } from "@/lib/cart";
+import { FEED_SLOT_NUMS } from "@/lib/imageSlots";
 
 /**
  * Home-page product feed ("Shop the feed") — rebuilt to the prototype's
@@ -54,6 +55,7 @@ export function SocialProductGrid({ products }: { products: Product[] }) {
               src={p.hero}
               alt={p.name}
               slotName={`PRODUCT-IMAGE:${p.id}`}
+              slotNum={FEED_SLOT_NUMS[i]}
               className="tile-fill-img"
               slotClassName="tile-media"
             />

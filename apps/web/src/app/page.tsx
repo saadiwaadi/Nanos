@@ -3,6 +3,7 @@ import { HeroSlider } from "@/components/HeroSlider";
 import { ProductCard } from "@/components/ProductCard";
 import { PlaceholderSlot } from "@/components/PlaceholderSlot";
 import { ImgOrSlot } from "@/components/ImgOrSlot";
+import { SocialProductGrid } from "@/components/SocialProductGrid";
 
 export const metadata = { title: "nanos.pk — Crocs & Trousers" };
 
@@ -80,22 +81,18 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ---- Shop the feed: every product, click for quick view ---- */}
+        {/* ---- Shop the feed: social strip (prototype renderHome) ----} */}
         <section className="section">
           <div className="section-head">
-            <h2>Shop the feed</h2>
+            <h2>Follow @nanos.pk</h2>
           </div>
           {products.length > 0 ? (
-            <div className="product-grid">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
+            <SocialProductGrid products={products} />
           ) : (
             <PlaceholderSlot
               name="HOME-PRODUCT-FEED"
               feeds="GET /products (live when API is up)"
-              note="Shows every product as a card once the API is reachable."
+              note="Shows the social feed strip once the API is reachable."
             />
           )}
         </section>

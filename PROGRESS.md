@@ -121,14 +121,21 @@ prototype (`../nanos-pk-prototype.html`) to a real stack:
 - **Home page sections (✅ NEW — all from the prototype's `renderHome`):**
   hero slider → **New Arrivals** (first 4 `tag=NEW` products, live from
   Neon; falls back to a `NEW-ARRIVALS` slot if the API is down) → category
-  **promo tiles** (CROCS / TROUSERS) → **Shop the feed** product grid
-  (below).
-- **Shop-the-feed product grid (reverted 2026-09-14 — cards restored):**
-  the home feed renders the standard `.product-grid` of `ProductCard`
-  components (same as the shop pages) — the `SocialProductGrid` social-tile
-  experiment was removed at the user's request. The `SocialProductGrid`
-  component file is kept but currently unused. API down → `HOME-PRODUCT-FEED`
-  slot (honest empty state).
+  **promo tiles** (CROCS / TROUSERS) → **Follow @nanos.pk** social feed
+  strip (below).
+- **Social feed strip (✅ rebuilt 2026-09-14 — user reference):**
+  the home feed is `SocialProductGrid`, matching the prototype's
+  `renderHome` social strip 1:1: dark brand tile ("nanos.pk / CROCS /
+  TROUSERS") → 4 product tiles (first 4 live products) with the prototype
+  tagline overlays (COMFORT IN EVERY STEP. / BETTER BASICS. / SIMPLE
+  STYLES. BIGGER DAYS. / bare 4th tile) → lime "KEEP IT SIMPLE. WEAR IT
+  YOUR WAY." tile closes the 3×3. Clicking a product tile opens the
+  quick-view modal (`openProduct`) — no navigation; hover shows the lime
+  `Quick view` chip + image zoom. Images stay live (`ImgOrSlot` with
+  `className="tile-fill-img"`, slot fallback `slotClassName="tile-media"`).
+  API down → `HOME-PRODUCT-FEED` slot (honest empty state). Old 8-tile
+  E2E probe `home-tiles-e2e.mjs` targets the previous variant and needs a
+  rewrite if reused.
 - **ProductCard upgraded (✅ NEW):** prototype-exact footer **Quick Add**
   button (adds default variant — local echo until CartModule), wishlist
   heart overlay on the thumbnail (local echo until UsersModule), and

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getProducts } from "@/lib/queries";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ProductCard } from "@/components/ProductCard";
@@ -58,7 +59,7 @@ export default async function HomePage() {
         {/* ---- Category promo tiles ---- */}
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="promo-grid">
-            <div className="promo-card">
+            <Link href="/crocs" className="promo-card" aria-label="Shop Crocs">
               <ImgOrSlot
                 src=""
                 alt=""
@@ -75,8 +76,8 @@ export default async function HomePage() {
                 </h3>
                 <span className="promo-link">Shop Crocs →</span>
               </div>
-            </div>
-            <div className="promo-card">
+            </Link>
+            <Link href="/trousers" className="promo-card" aria-label="Shop Trousers">
               <ImgOrSlot
                 src=""
                 alt=""
@@ -93,7 +94,7 @@ export default async function HomePage() {
                 </h3>
                 <span className="promo-link">Shop Trousers →</span>
               </div>
-            </div>
+            </Link>
           </div>
         </section>
 

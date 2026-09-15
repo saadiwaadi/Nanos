@@ -218,6 +218,14 @@ img{max-width:100%;display:block;}
   display:flex;align-items:flex-end;padding:32px;background-size:cover;background-position:center;
   cursor:pointer;
 }
+a.promo-card{text-decoration:none;color:inherit;}
+/* hover zoom — matches the social-tile treatment (scale 1.04, springy ease).
+   Applied to the .promo-media wrapper so it covers both the loaded image
+   and the slot-box placeholder state. */
+a.promo-card .promo-media{transition:transform .35s cubic-bezier(.16,1,.3,1);}
+a.promo-card:hover .promo-media,
+a.promo-card:focus-visible .promo-media{transform:scale(1.04);}
+a.promo-card:focus-visible{outline:2px solid var(--lime);outline-offset:2px;}
 .promo-card::after{
   content:'';position:absolute;inset:0;background:linear-gradient(0deg, rgba(17,17,17,.55) 0%, rgba(17,17,17,0) 55%);
 }

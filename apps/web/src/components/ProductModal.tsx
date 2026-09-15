@@ -132,7 +132,7 @@ export function ProductModal() {
   const { selectedProduct, closeProduct, openSizeGuide, sizeGuideOpen } = ctx;
 
   const [imgIdx, setImgIdx] = useState(0);
-  const [mainSrc, setMainSrc] = useState("");
+  const [mainSrc, setMainSrc] = useState<string | null>(null);
   const [imgOpacity, setImgOpacity] = useState(1);
   const [colorName, setColorName] = useState("");
   const [size, setSize] = useState<string | null>(null);
@@ -174,7 +174,7 @@ export function ProductModal() {
     setWish(false);
     setImgIdx(0);
     setDesc(product.desc ?? "");
-    const firstSrc = gallery[0] ?? product.hero ?? "";
+    const firstSrc = gallery[0] ?? product.hero ?? null;
     setMainSrc(firstSrc);
     setImgOpacity(1);
   }, [product, gallery]);
@@ -229,7 +229,7 @@ export function ProductModal() {
 
   const goTo = useCallback(
     (idx: number) => {
-      const newSrc = gallery[idx] ?? product?.hero ?? "";
+      const newSrc = gallery[idx] ?? product?.hero ?? null;
       if (newSrc === mainSrc) {
         setImgIdx(idx);
         return;
@@ -325,7 +325,7 @@ export function ProductModal() {
                 </>
               )}
               <img
-                src={mainSrc}
+                src={mainSrc ?? undefined}
                 alt={product.name}
                 className="pmq-main-img"
                 style={{

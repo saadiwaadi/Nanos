@@ -13,6 +13,7 @@ import {
 import type { Product } from "@nanospk/shared-types";
 import { useCart, fmtPrice } from "@/lib/cart";
 import { useProductModal } from "./ProductModalContext";
+import { ProductCodeChip } from "./ProductCodeTag";
 
 const SIZE_CHART = [
   { us: "US 6", uk: "UK 5.5", eu: "39", cm: "24.5" },
@@ -603,6 +604,7 @@ export function ProductDetailPanel() {
             {showDesc && (
               <div className="pdp-desc">
                 {desc || "No description available for this product."}
+                {desc && <ProductCodeChip productId={product.id} />}
               </div>
             )}
           </div>

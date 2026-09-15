@@ -61,8 +61,8 @@ export default async function HomePage() {
           <div className="promo-grid">
             <Link href="/crocs" className="promo-card" aria-label="Shop Crocs">
               <ImgOrSlot
-                src=""
-                alt=""
+                src="https://res.cloudinary.com/tp1vyxi3/image/upload/v1789465101/ChatGPT_Image_Sep_15_2026_02_33_21_AM.png"
+                alt="Crocs — all day comfort, anywhere"
                 slotName="PROMO-IMAGE-CROCS"
                 slotNum={IMAGE_SLOTS.promoCrocs}
                 slotClassName="promo-media"
@@ -79,8 +79,8 @@ export default async function HomePage() {
             </Link>
             <Link href="/trousers" className="promo-card" aria-label="Shop Trousers">
               <ImgOrSlot
-                src=""
-                alt=""
+                src="https://res.cloudinary.com/tp1vyxi3/image/upload/v1789465325/lol.jpg"
+                alt="Trousers — comfort meets versatility"
                 slotName="PROMO-IMAGE-TROUSERS"
                 slotNum={IMAGE_SLOTS.promoTrousers}
                 slotClassName="promo-media"

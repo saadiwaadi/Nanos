@@ -28,6 +28,30 @@ export const IMAGE_SLOTS = {
 
 export type ImageSlotKey = keyof typeof IMAGE_SLOTS;
 
+/**
+ * Product codes — stable short SKUs shown with every product image so a
+ * photo can be traced back to its product on any surface (home feed, shop
+ * grid, PDP gallery, quick-view modal, cart). e.g. `CLO-BLK · IMG-10`.
+ */
+export const PRODUCT_CODES: Record<(typeof PRODUCT_ORDER)[number], string> = {
+  "clog-black": "CLO-BLK",
+  "clog-sand": "CLO-SND",
+  "clog-olive": "CLO-OLV",
+  "trouser-black": "TRU-BLK",
+  "trouser-charcoal": "TRU-CHR",
+  "trouser-stone": "TRU-STN",
+  "clog-black-sale": "CLO-LTE",
+  "trouser-black-cargo": "TRU-CRG",
+};
+
+/** Product code by product id; unknown products get a safe fallback. */
+export function productCode(productId: string): string {
+  return (
+    PRODUCT_CODES[productId as (typeof PRODUCT_ORDER)[number]] ??
+    productId.toUpperCase().replace(/[^A-Z0-9]+/g, "-").slice(0, 12)
+  );
+}
+
 /** Seeded catalog order — product N's hero is IMG-(9+N). */
 export const PRODUCT_ORDER = [
   "clog-black", //        IMG-10

@@ -16,12 +16,16 @@ export class ProductsService {
         ...(filters.category ? { category: filters.category } : {}),
         ...(filters.sale ? { isSale: true } : {}),
       },
+      include: { colors: { orderBy: { sortOrder: "asc" as const } } },
       orderBy: { createdAt: "asc" },
     });
   }
 
   async findOne(id: string) {
-    const product = await this.prisma.product.findUnique({ where: { id } });
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: { colors: { orderBy: { sortOrder: "asc" as const } } },
+    });
     if (!product) {
       throw new NotFoundException(`Product "${id}" not found`);
     }

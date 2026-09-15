@@ -1,6 +1,6 @@
 # nanos.pk — Build Progress Spec
 
-> Last updated: 2026-09-13 (after AuthModule). Read this at the start of every session.
+> Last updated: 2026-09-15 (frontend polish batch — see "Frontend polish batch" below). Read this at the start of every session.
 > Status legend: ✅ done · 🔶 partially done · ⬜ not started
 
 ## What this project is
@@ -113,7 +113,9 @@ prototype (`../nanos-pk-prototype.html`) to a real stack:
 - **Named image slots (`ImgOrSlot`, ✅ NEW):** any image we don't have yet
   renders a dashed `[SLOT: NAME]` box instead of a broken `img`. Current
   slots (fill by passing the URL to `<ImgOrSlot src="…">` in `page.tsx`):
-  - `/` home → `PROMO-IMAGE-CROCS`, `PROMO-IMAGE-TROUSERS` (category tiles)
+  - `/` home → `PROMO-IMAGE-CROCS`, `PROMO-IMAGE-TROUSERS` (category tiles
+    — both filled 2026-09-15 with brand Cloudinary URLs, curl-verified 200;
+    trousers tile first URL 404'd and was replaced same day)
   - Product cards/PDP/home feed tiles fall back to `PRODUCT-IMAGE:<id>`
     only if a seeded image URL is empty or 404s (all 8 seeded products have
     images today; the dead Unsplash `photo-1621665421964` was replaced with
@@ -180,6 +182,45 @@ prototype (`../nanos-pk-prototype.html`) to a real stack:
   `#111` at 84px starting at x=96 (no left-edge bleed) — verified by
   screenshot pixel analysis (`apps/web/hero-probe.mjs`).
 - `prefers-reduced-motion`: all hero/backdrop/header transitions disabled.
+
+### Frontend polish batch (✅ NEW — 2026-09-15, tsc-verified)
+
+- **Promo tiles clickable (✅):** the home IMG-04/IMG-05 category tiles are
+  now `next/link` anchors → `/crocs` and `/trousers` (restores the
+  prototype's `onclick="navigate(... )"`; whole card clickable, aria-labels).
+  `a.promo-card` link reset added to `prototype.css`.
+- **Promo tile hover zoom (✅):** `.promo-media` scales to 1.04 on
+  hover/keyboard focus with the social tiles' exact easing
+  (`cubic-bezier(.16,1,.3,1)`, 0.35s) — applied to the wrapper so it covers
+  both the loaded image and the slot placeholder state; `:focus-visible`
+  lime outline matches the social tiles.
+- **Product codes (SKU) system (✅):** `lib/imageSlots.ts` gained
+  `PRODUCT_CODES` + `productCode()` — stable short codes for the 8 seeded
+  products (`CLO-BLK`, `CLO-SND`, `CLO-OLV`, `TRU-BLK`, `TRU-CHR`,
+  `TRU-STN`, `CLO-LTE`, `TRU-CRG`); unknown ids get a safe derived
+  fallback. Purpose: any photo on any surface is traceable to its product.
+- **`ProductCodeTag` component (✅):** two modes — corner badge
+  `SKU CLO-BLK · IMG-10` (bottom-right, opposite the existing IMG badge)
+  on every product image (ProductCard, SocialProductGrid feed tiles, cart
+  page lines, CartDrawer rows, quick-view modal main image), and an
+  `inline` chip on the PDP sub-line. Fixed missing `position:relative` on
+  `.cart-item-img` / `.cart-line-img` so the badges anchor correctly.
+- **Code chip inside descriptions (✅):** `ProductCodeChip` renders the
+  bare code (e.g. `CLO-OLV`) as a small bordered tag at the end of the
+  description in all three description surfaces — PDP accordion, quick-view
+  modal (`pmq-desc`), `ProductDetailPanel`. `user-select: all` for
+  one-click copy while filling image slots.
+- **Sticky footer (✅):** `body` is now a full-height flex column
+  (`min-height: 100vh` + `100svh`), `body > main { flex: 1 0 auto }` → the
+  footer hugs the viewport bottom on short pages (empty cart, login) and
+  flows normally on long ones. Tailwind `min-h-screen` removed from
+  `<body>` in `layout.tsx` (single source of truth in `globals.css`);
+  works because all chrome (header/drawer/cart/modal) is `position:fixed`
+  and out of flow.
+- **Side nav Categories (✅):** the drawer gained a "Categories" heading
+  (`.nav-heading` — small uppercase gray) with **Crocs** and **Trousers**
+  links, reusing the same link renderer as Home/Cart (lime hover arrow,
+  active state, drawer closes on navigate, `next/link` prefetch).
 
 ### Tooling
 - Api dev deps: `@nestjs/testing@^11`, `supertest`, `@types/supertest`,
@@ -268,6 +309,11 @@ curl -o /dev/null -w "%{http_code}\n" http://localhost:4000/products  # 3. api u
 
 ## Verification snapshot (2026-09-13, after AuthModule)
 
+- **2026-09-15 addendum:** `apps/web` `npx tsc --noEmit` → passes ✅ after
+  every step of the frontend polish batch (promo links/zoom, SKU system,
+  code chips, sticky footer, drawer categories). UI changes not yet
+  browser-E2E probed — visual check on short pages (empty cart) and drawer
+  still pending.
 - `corepack pnpm --filter api typecheck` → passes ✅
 - `corepack pnpm --filter web typecheck` (tsc --noEmit) → passes ✅
 - Neon: migrations `init` + `add_google_id` applied; `Product` count = 8,

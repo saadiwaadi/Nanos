@@ -6,6 +6,7 @@ import type { Product } from "@nanospk/shared-types";
 import { cn } from "@/lib/api";
 import { useCart } from "@/lib/cart";
 import { productSlotNums } from "@/lib/imageSlots";
+import { ProductCodeTag, ProductCodeChip } from "./ProductCodeTag";
 
 function fmtPrice(n: number) {
   return "PKR " + n.toLocaleString("en-PK");
@@ -20,7 +21,16 @@ export function ProductDetail({ product: p }: { product: Product }) {
   const [wished, setWished] = useState(false);
   const cart = useCart();
 
-  const gallery = p.gallery.length > 0 ? p.gallery : [p.hero];
+  // Gallery derives from the SELECTED COLOR's images (backfilled per-color
+  // galleries); falls back to the product-wide gallery, then to hero.
+  const selectedColor = p.colors.find((c) => c.name === color);
+  const colorImages = selectedColor?.images ?? [];
+  const gallery =
+    colorImages.length > 0
+      ? colorImages
+      : p.gallery.length > 0
+        ? p.gallery
+        : [p.hero];
   const soldOut = (s: string) => p.outOfStock.includes(s);
   const slotNums = productSlotNums(p.id);
 
@@ -65,7 +75,8 @@ export function ProductDetail({ product: p }: { product: Product }) {
         <h1>{p.name}</h1>
         <div className="pdp-sub">
           {p.category === "crocs" ? "Crocs" : "Trousers"} · {p.colors.length}{" "}
-          colors available
+          colors available{" "}
+          <ProductCodeTag productId={p.id} slotNum={slotNums.num} inline />
         </div>
         <div className="pdp-price-row">
           <span className="price">{fmtPrice(p.price)}</span>
@@ -92,7 +103,10 @@ export function ProductDetail({ product: p }: { product: Product }) {
                 key={c.name}
                 title={c.name}
                 className={cn("color-opt", color === c.name && "selected")}
-                onClick={() => setColor(c.name)}
+                onClick={() => {
+                  setColor(c.name);
+                  setImgIdx(0); // new color => new thumbnail strip; avoid stale index
+                }}
               >
                 <span className="swatch-inner" style={{ background: c.hex }} />
               </div>
@@ -189,7 +203,10 @@ export function ProductDetail({ product: p }: { product: Product }) {
         <div className="pdp-accordion">
           <details open>
             <summary>Description</summary>
-            <p>{p.desc}</p>
+            <p>
+              {p.desc}
+              <ProductCodeChip productId={p.id} />
+            </p>
           </details>
           <details>
             <summary>Size &amp; Fit</summary>

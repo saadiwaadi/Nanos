@@ -13,6 +13,7 @@ import type { Product } from "@nanospk/shared-types";
 import { useCart, fmtPrice } from "@/lib/cart";
 import { useProductModal } from "./ProductModalContext";
 import { productSlotNums } from "@/lib/imageSlots";
+import { ProductCodeTag, ProductCodeChip } from "./ProductCodeTag";
 
 const SIZE_CHART = [
   { us: "US 6", uk: "UK 5.5", eu: "39", cm: "24.5" },
@@ -340,6 +341,12 @@ export function ProductModal() {
                   {slotNums.galleryNums[imgIdx] ?? slotNums.num}
                 </span>
               )}
+              {slotNums && (
+                <ProductCodeTag
+                  productId={product.id}
+                  slotNum={slotNums.galleryNums[imgIdx] ?? slotNums.num}
+                />
+              )}
             </div>
             {gallery.length > 1 && (
               <div className="pmq-thumbs">
@@ -556,7 +563,10 @@ export function ProductModal() {
               </p>
             )}
 
-            <p className="pmq-desc">{desc}</p>
+            <p className="pmq-desc">
+              {desc}
+              <ProductCodeChip productId={product.id} />
+            </p>
           </div>
         </div>
       </div>

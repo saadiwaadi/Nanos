@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} font-body antialiased min-h-screen`}
+        className={`${inter.variable} ${spaceGrotesk.variable} font-body antialiased`}
       >
         <ChromeShell>{children}</ChromeShell>
         <SiteFooter />

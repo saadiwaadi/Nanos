@@ -15,7 +15,8 @@ export type RawProduct = {
   desc: string;
   rating: number;
   reviews: number;
-  colorsJson: string;
+  /** Prisma relation (replaces the old colorsJson string field). */
+  colors: { name: string; hex: string; imagesJson: string }[];
   sizesJson: string;
   outOfStockJson: string;
   hero: string;
@@ -40,7 +41,11 @@ export function toProduct(raw: RawProduct): Product {
     tag: raw.tag,
     price: raw.price,
     oldPrice: raw.oldPrice,
-    colors: parseJsonArray<Product["colors"][number]>(raw.colorsJson),
+    colors: raw.colors.map((c) => ({
+      name: c.name,
+      hex: c.hex,
+      images: parseJsonArray<string>(c.imagesJson),
+    })),
     sizes: parseJsonArray<string>(raw.sizesJson),
     outOfStock: parseJsonArray<string>(raw.outOfStockJson),
     hero: raw.hero,

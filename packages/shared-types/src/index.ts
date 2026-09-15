@@ -7,6 +7,8 @@ export type Category = "crocs" | "trousers" | "shop" | "sale";
 export interface ProductColor {
   name: string;
   hex: string;
+  /** Per-color gallery (ordered). Falls back to the product gallery on the PDP when empty. */
+  images: string[];
 }
 
 export interface ProductVariant {

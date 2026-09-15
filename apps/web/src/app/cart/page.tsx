@@ -8,6 +8,7 @@ import {
   FREE_SHIPPING_THRESHOLD,
 } from "@/lib/cart";
 import { ImgOrSlot } from "@/components/ImgOrSlot";
+import { ProductCodeTag } from "@/components/ProductCodeTag";
 import { productSlotNums } from "@/lib/imageSlots";
 
 /**
@@ -85,6 +86,7 @@ export default function CartPage() {
                     slotNum={productSlotNums(item.productId).num}
                     showBadge
                   />
+                  <ProductCodeTag productId={item.productId} slotNum={productSlotNums(item.productId).num} />
                 </Link>
                 <div className="cart-line-info">
                   <h3>

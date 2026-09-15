@@ -1,0 +1,188 @@
+:root {
+  --color-ink: #111111;
+  --color-bg: #F7F5F0;
+  --color-secondary: #D9D6CF;
+  --color-accent: #C8FF00;
+  --color-heading: #222222;
+  --color-error: #C0392B;
+  --color-warning: #B8860B;
+  --color-success: #2E7D32;
+  --font-heading: var(--font-space-grotesk), 'Space Grotesk', sans-serif;
+  --font-body: var(--font-inter), 'Inter', sans-serif;
+  --radius: 4px;
+  --border: 1px solid var(--color-secondary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  color: var(--color-heading);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+h3 {
+  font-size: 15px;
+}
+
+h4 {
+  font-size: 13px;
+}
+
+a {
+  color: var(--color-ink);
+}
+
+/* ---------- buttons ---------- */
+
+button {
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-primary,
+.btn-secondary {
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  font-weight: 700;
+  transition: background 0.15s ease, filter 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-ink);
+  border: none;
+}
+
+.btn-primary:hover {
+  filter: brightness(0.92);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: var(--border);
+  color: var(--color-ink);
+  font-weight: 400;
+}
+
+.btn-secondary:hover {
+  background: var(--color-secondary);
+}
+
+/* ---------- form controls ---------- */
+
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-ink);
+  background: #ffffff;
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 1px;
+}
+
+input[type='number'] {
+  width: auto;
+}
+
+/* ---------- tables ---------- */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-heading);
+  font-variant-caps: all-small-caps;
+  text-align: left;
+  padding: 8px;
+  border-bottom: 2px solid var(--color-secondary);
+}
+
+td {
+  padding: 8px;
+  border-bottom: 1px solid var(--color-secondary);
+}
+
+/* ---------- badges & status text ---------- */
+
+.badge-sale {
+  display: inline-block;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.sortable-header {
+  cursor: pointer;
+}
+
+.sortable-header:hover {
+  text-decoration: underline;
+}
+
+/* ---------- links in tables (Edit etc.) ---------- */
+
+td a {
+  text-decoration: underline;
+}

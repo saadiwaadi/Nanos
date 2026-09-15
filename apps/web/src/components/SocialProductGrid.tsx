@@ -2,6 +2,7 @@
 
 import type { Product } from "@nanospk/shared-types";
 import { ImgOrSlot } from "./ImgOrSlot";
+import { ProductCodeTag } from "./ProductCodeTag";
 import { useProductModal } from "./ProductModalContext";
 import { fmtPrice } from "@/lib/cart";
 import { FEED_SLOT_NUMS } from "@/lib/imageSlots";
@@ -59,6 +60,7 @@ export function SocialProductGrid({ products }: { products: Product[] }) {
               className="tile-fill-img"
               slotClassName="tile-media"
             />
+            <ProductCodeTag productId={p.id} slotNum={FEED_SLOT_NUMS[i]} />
             {tagline && (
               <p>
                 {tagline[0]}

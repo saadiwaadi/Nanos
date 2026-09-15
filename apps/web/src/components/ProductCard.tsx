@@ -5,6 +5,7 @@ import { Heart } from "lucide-react";
 import { useState } from "react";
 import type { Product } from "@nanospk/shared-types";
 import { ImgOrSlot } from "./ImgOrSlot";
+import { ProductCodeTag } from "./ProductCodeTag";
 import { useCart } from "@/lib/cart";
 import { useProductModal } from "./ProductModalContext";
 import { productSlotNums } from "@/lib/imageSlots";
@@ -61,6 +62,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           slotNum={slot.num}
           showBadge
         />
+        <ProductCodeTag productId={p.id} slotNum={slot.num} />
         <div className="badges">
           {badge && (
             <span className={badge}>

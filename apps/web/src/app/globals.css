@@ -24,6 +24,18 @@ body {
   color: var(--color-black);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* sticky footer: body is a full-height column, footer hugs the bottom on
+     short pages (empty cart, login) and flows normally on long ones */
+  min-height: 100vh;
+  min-height: 100svh; /* mobile-safe 100vh */
+  display: flex;
+  flex-direction: column;
+}
+
+/* page content grows to push the footer down; fixed chrome (header, drawer,
+   modal) is out of flow so it can stay a direct body child */
+body > main {
+  flex: 1 0 auto;
 }
 
 /* Utility tokens that map directly to the prototype */
@@ -206,6 +218,16 @@ body {
 .side-nav .side-arrow { opacity: 0; transition: opacity 0.15s; }
 .side-nav a.side-link:hover .side-arrow,
 .side-nav a.side-link.active .side-arrow { opacity: 1; }
+
+/* drawer section headings (e.g. "Categories") */
+.side-nav .nav-heading {
+  padding: 22px 26px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #777;
+}
 
 /* dim overlay behind the drawer (all viewport sizes) */
 .nav-backdrop {
@@ -471,6 +493,15 @@ button.quick-add.added { background: var(--lime); color: var(--black); border-co
 .promo-media { position: absolute; inset: 0; z-index: 0; display: flex; }
 .promo-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .promo-media .slot-box { border-width: 0; background: #E7E3DA; }
+.promo-card > img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
 .social-tile .tile-media { position: absolute; inset: 0; display: flex; }
 .social-tile .tile-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -527,7 +558,7 @@ button.quick-add.added { background: var(--lime); color: var(--black); border-co
 
 /* ---- Cart UI additions (client cart store era) ---- */
 /* .cart-line img rule targets the Link wrapper too */
-.cart-line a.cart-line-img { display: block; flex: 0 0 96px; }
+.cart-line a.cart-line-img { display: block; flex: 0 0 96px; position: relative; }
 .cart-line a.cart-line-img img,
 .cart-line a.cart-line-img .thumb-slot {
   width: 96px; height: 96px; object-fit: cover; border-radius: 6px; background: var(--white);
@@ -714,6 +745,7 @@ button.remove-link:hover { color: #c0392b; }
 }
 
 .cart-item-img {
+  position: relative;
   width: 96px;
   height: 96px;
   border-radius: 6px;
@@ -907,4 +939,52 @@ button.remove-link:hover { color: #c0392b; }
   font-weight: 800;
   letter-spacing: 0.06em;
   border-radius: 2px;
+}
+
+/* Small product-code label shown with every product image —
+   `SKU CLO-BLK · IMG-10` — so any photo is traceable to its product.
+   Default: absolute bottom-right corner badge (parent needs position:relative);
+   `.inline`: static chip for info rows / captions. */
+.product-code-tag {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  padding: 3px 8px;
+  background: rgba(17, 17, 17, 0.85);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border-radius: 2px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.product-code-tag.inline {
+  position: static;
+  display: inline-block;
+  color: #666;
+  background: rgba(17, 17, 17, 0.06);
+  padding: 2px 7px;
+  pointer-events: auto;
+}
+
+/* bare code chip inside product descriptions — small bordered tag, e.g.
+   CLO-BLK. Sits inline with the description text, wraps cleanly. */
+.product-code-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  margin-left: 8px;
+  border: 1px solid rgba(17, 17, 17, 0.25);
+  border-radius: 3px;
+  background: rgba(17, 17, 17, 0.04);
+  color: #111;
+  font-family: var(--font-family-heading, inherit);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  vertical-align: middle;
+  white-space: nowrap;
+  user-select: all;
 }

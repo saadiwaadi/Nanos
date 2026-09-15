@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { useCart, fmtPrice } from "@/lib/cart";
+import { ProductCodeTag } from "./ProductCodeTag";
 
 const CART_DRAWER_WIDTH = 400;
 const MOBILE_BREAKPOINT = 640;
@@ -91,6 +92,7 @@ function CartItemRow({
         ) : (
           <div className="cart-item-img-slot" />
         )}
+        <ProductCodeTag productId={item.productId} />
       </div>
 
       <div className="cart-item-info">

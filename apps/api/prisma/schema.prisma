@@ -119,7 +119,9 @@ model WishlistItem {
 
 model Order {
   id           String      @id @default(cuid())
-  userId       String
+  userId       String?
+  guestEmail   String?
+  guestName    String?
   subtotal     Int         @default(0)
   discount     Int         @default(0)
   shipping     Int         @default(0)
@@ -129,7 +131,7 @@ model Order {
   status       String      @default("processing")
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
-  user         User        @relation(fields: [userId], references: [id])
+  user         User?       @relation(fields: [userId], references: [id])
   items        OrderItem[]
 }
 

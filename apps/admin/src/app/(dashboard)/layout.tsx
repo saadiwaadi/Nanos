@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 
-const API_BASE = 'http://localhost:4000';
+import { API_BASE } from '@/lib/api';
+
 
 export default function DashboardLayout({
   children,

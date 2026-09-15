@@ -12,14 +12,20 @@ async function bootstrap() {
     new ValidationPipe({ whitelist: true, transform: true }),
   );
   app.use(cookieParser());
+  const isProd = process.env.NODE_ENV === 'production';
+  const webOrigin = process.env.WEB_ORIGIN || (!isProd ? 'http://localhost:3000' : '');
+  const adminOrigin = process.env.ADMIN_ORIGIN || (!isProd ? 'http://localhost:3001' : '');
+
+  if (isProd && (!process.env.WEB_ORIGIN || !process.env.ADMIN_ORIGIN)) {
+    throw new Error('WEB_ORIGIN and ADMIN_ORIGIN environment variables must be defined in production');
+  }
+
   app.enableCors({
-    origin: [
-      process.env.WEB_ORIGIN ?? 'http://localhost:3000',
-      process.env.ADMIN_ORIGIN ?? 'http://localhost:3001',
-    ],
+    origin: [webOrigin, adminOrigin].filter(Boolean),
     credentials: true,
   });
-  await app.listen(process.env.PORT ?? 4000);
-  console.log(`API ready on http://localhost:${process.env.PORT ?? 4000}`);
+  const port = process.env.PORT ?? 4000;
+  await app.listen(port);
+  console.log(`API ready on port ${port}`);
 }
 await bootstrap();

@@ -5,8 +5,9 @@ import { Heart, Truck, RotateCcw, Headset } from "lucide-react";
 import type { Product } from "@nanospk/shared-types";
 import { cn } from "@/lib/api";
 import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
 import { productSlotNums } from "@/lib/imageSlots";
-import { ProductCodeTag, ProductCodeChip } from "./ProductCodeTag";
+import { ProductCodeChip, getProductSku } from "./ProductCodeTag";
 
 function fmtPrice(n: number) {
   return "PKR " + n.toLocaleString("en-PK");
@@ -18,8 +19,9 @@ export function ProductDetail({ product: p }: { product: Product }) {
   const [size, setSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [wished, setWished] = useState(false);
   const cart = useCart();
+  const wishlist = useWishlist();
+  const wished = wishlist.isWishlisted(p.id);
 
   // Gallery derives from the SELECTED COLOR's images (backfilled per-color
   // galleries); falls back to the product-wide gallery, then to hero.
@@ -54,7 +56,6 @@ export function ProductDetail({ product: p }: { product: Product }) {
         <div className="pdp-main-image">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={gallery[imgIdx]} alt={p.name} />
-          <span className="img-slot-badge">{slotNums.galleryNums[imgIdx] ?? slotNums.num}</span>
         </div>
         <div className="pdp-thumbs">
           {gallery.map((g, i) => (
@@ -65,7 +66,6 @@ export function ProductDetail({ product: p }: { product: Product }) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={g} alt="" />
-              <span className="img-slot-badge">{slotNums.galleryNums[i] ?? slotNums.num}</span>
             </div>
           ))}
         </div>
@@ -73,10 +73,10 @@ export function ProductDetail({ product: p }: { product: Product }) {
 
       <div className="pdp-info">
         <h1>{p.name}</h1>
+        <div className="sku-subtext">{getProductSku(p.id)}</div>
         <div className="pdp-sub">
           {p.category === "crocs" ? "Crocs" : "Trousers"} · {p.colors.length}{" "}
-          colors available{" "}
-          <ProductCodeTag productId={p.id} slotNum={slotNums.num} inline />
+          colors available
         </div>
         <div className="pdp-price-row">
           <span className="price">{fmtPrice(p.price)}</span>
@@ -166,7 +166,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
             className={`wish-toggle ${wished ? "active" : ""}`}
             aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
             aria-pressed={wished}
-            onClick={() => setWished((w) => !w)}
+            onClick={() => wishlist.toggleWishlist(p)}
           >
             <Heart size={18} strokeWidth={2} />
           </button>

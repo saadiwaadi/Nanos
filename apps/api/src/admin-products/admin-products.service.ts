@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class AdminProductsService {
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
-      include: { variants: true },
+      include: { variants: true, colors: { orderBy: { sortOrder: 'asc' } } },
     });
     if (!product) throw new NotFoundException(`Product "${id}" not found`);
     return product;
@@ -36,6 +36,44 @@ export class AdminProductsService {
   }>) {
     await this.findOne(id);
     return this.prisma.product.update({ where: { id }, data });
+  }
+
+  async addColor(productId: string, data: { name: string; hex: string; imagesJson?: string }) {
+    await this.findOne(productId);
+    const count = await this.prisma.productColor.count({ where: { productId } });
+    return this.prisma.productColor.create({
+      data: {
+        productId,
+        name: data.name,
+        hex: data.hex,
+        imagesJson: data.imagesJson ?? '[]',
+        sortOrder: count,
+      },
+    });
+  }
+
+  async updateColor(
+    productId: string,
+    colorId: string,
+    data: Partial<{ name: string; hex: string; imagesJson: string; sortOrder: number }>,
+  ) {
+    const color = await this.prisma.productColor.findFirst({
+      where: { id: colorId, productId },
+    });
+    if (!color) throw new NotFoundException(`Color "${colorId}" not found for product "${productId}"`);
+    return this.prisma.productColor.update({ where: { id: colorId }, data });
+  }
+
+  async removeColor(productId: string, colorId: string) {
+    const color = await this.prisma.productColor.findFirst({
+      where: { id: colorId, productId },
+    });
+    if (!color) throw new NotFoundException(`Color "${colorId}" not found for product "${productId}"`);
+    const count = await this.prisma.productColor.count({ where: { productId } });
+    if (count <= 1) {
+      throw new BadRequestException('Cannot delete the last color of a product');
+    }
+    return this.prisma.productColor.delete({ where: { id: colorId } });
   }
 
   async remove(id: string) {

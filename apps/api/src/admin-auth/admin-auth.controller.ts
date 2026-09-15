@@ -25,7 +25,12 @@ export class AdminAuthController {
 
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('admin_token');
+    res.clearCookie('admin_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
     return { ok: true };
   }
 

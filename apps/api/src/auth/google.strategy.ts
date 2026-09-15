@@ -12,13 +12,17 @@ export type GoogleProfile = {
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
   constructor(private readonly prisma: PrismaService) {
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd && !process.env.GOOGLE_CALLBACK_URL) {
+      throw new Error('GOOGLE_CALLBACK_URL environment variable must be defined in production');
+    }
     super({
-      clientID: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientID: process.env.GOOGLE_CLIENT_ID ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       callbackURL:
         process.env.GOOGLE_CALLBACK_URL ??
-        "http://localhost:4000/auth/google/callback",
-      scope: ["email", "profile"],
+        'http://localhost:4000/auth/google/callback',
+      scope: ['email', 'profile'],
     });
   }
 

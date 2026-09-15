@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
-const API = "http://localhost:4000";
+import { API_BASE as API } from "@/lib/api";
+
 
 export default function AdminPage() {
   const [status, setStatus] = useState<"checking" | "authed" | "anon">("checking");
@@ -60,7 +61,10 @@ export default function AdminPage() {
     return (
       <div>
         <p>Admin session active</p>
-        <Link href="/products">Products</Link>
+        <div style={{ display: "flex", gap: 16 }}>
+          <Link href="/orders">Orders</Link>
+          <Link href="/products">Products</Link>
+        </div>
       </div>
     );
   }

@@ -7,9 +7,20 @@ import { AuthModule } from './auth/auth.module.js';
 import { AdminAuthModule } from './admin-auth/admin-auth.module.js';
 import { AdminProductsModule } from './admin-products/admin-products.module.js';
 import { AdminSettingsModule } from './admin-settings/admin-settings.module.js';
+import { OrdersModule } from './orders/orders.module.js';
+import { AdminOrdersModule } from './admin-orders/admin-orders.module.js';
 
 @Module({
-  imports: [PrismaModule, ProductsModule, AuthModule, AdminAuthModule, AdminProductsModule, AdminSettingsModule],
+  imports: [
+    PrismaModule,
+    ProductsModule,
+    AuthModule,
+    AdminAuthModule,
+    AdminProductsModule,
+    AdminSettingsModule,
+    OrdersModule,
+    AdminOrdersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

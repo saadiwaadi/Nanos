@@ -12,8 +12,9 @@ import {
 } from "lucide-react";
 import type { Product } from "@nanospk/shared-types";
 import { useCart, fmtPrice } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
 import { useProductModal } from "./ProductModalContext";
-import { ProductCodeChip } from "./ProductCodeTag";
+import { ProductCodeChip, getProductSku } from "./ProductCodeTag";
 
 const SIZE_CHART = [
   { us: "US 6", uk: "UK 5.5", eu: "39", cm: "24.5" },
@@ -132,9 +133,12 @@ export function ProductDetailPanel() {
   const cart = useCart();
   const { selectedProduct, closeProduct, openSizeGuide, sizeGuideOpen, detailPanelOpen, closeDetailPanel } = ctx;
 
-  // Don't render if detail panel isn't open
-  if (!detailPanelOpen || !selectedProduct) return null;
-
+  // NOTE: hooks must run unconditionally — do NOT early-return above them.
+  // (The previous `if (!detailPanelOpen || !selectedProduct) return null;`
+  // sat between useState/useRef/useEffect hooks and broke the Rules of
+  // Hooks: hook count differed between closed/open renders.) The render
+  // guard now lives after all hooks, just before the JSX.
+  const product: Product | null = selectedProduct;
   const [imgIdx, setImgIdx] = useState(0);
   const [mainSrc, setMainSrc] = useState("");
   const [imgOpacity, setImgOpacity] = useState(1);
@@ -142,7 +146,8 @@ export function ProductDetailPanel() {
   const [size, setSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [wish, setWish] = useState(false);
+  const wishlist = useWishlist();
+  const wish = product ? wishlist.isWishlisted(product.id) : false;
   const [desc, setDesc] = useState("");
   const [showDesc, setShowDesc] = useState(false);
 
@@ -151,23 +156,27 @@ export function ProductDetailPanel() {
   const trapHandlerRef = useRef<((e: KeyboardEvent) => void) | null>(null);
   const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gotoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleColor = (name: string) => setColorName(name);
-
-  const product: Product | null = selectedProduct;
+  // Gallery derives from the SELECTED COLOR's images (per-color galleries);
+  // falls back to the product-wide gallery, then to hero.
+  const selectedColor = product?.colors.find((c) => c.name === colorName);
+  const colorImages = selectedColor?.images ?? [];
   const gallery =
-    product && product.gallery.length > 0
-      ? product.gallery
-      : product
-        ? [product.hero]
-        : [];
+    product && colorImages.length > 0
+      ? colorImages
+      : product && product.gallery.length > 0
+        ? product.gallery
+        : product
+          ? [product.hero]
+          : [];
 
   const soldOut = useCallback(
     (s: string) => (product ? product.outOfStock.includes(s) : true),
     [product],
   );
 
-  // reset per-product state when product changes
+  // reset per-product state when the PRODUCT changes — NOT on color change:
+  // gallery now derives from the selected color, so keeping `gallery` in the
+  // deps would re-run this on every swatch click and clobber the selection.
   useEffect(() => {
     if (!detailPanelOpen || !product) return;
     if (gotoTimerRef.current) clearTimeout(gotoTimerRef.current);
@@ -177,14 +186,19 @@ export function ProductDetailPanel() {
     setSize(product.sizes.find((s) => !product.outOfStock.includes(s)) ?? null);
     setQty(1);
     setAdded(false);
-    setWish(false);
     setImgIdx(0);
     setDesc(product.desc ?? "");
     setShowDesc(false);
-    const firstSrc = gallery[0] ?? product.hero ?? "";
-    setMainSrc(firstSrc);
+    const firstColorImgs = colors[0]?.images ?? [];
+    const firstStrip =
+      firstColorImgs.length > 0
+        ? firstColorImgs
+        : product.gallery.length > 0
+          ? product.gallery
+          : [product.hero];
+    setMainSrc(firstStrip[0] ?? product.hero ?? "");
     setImgOpacity(1);
-  }, [product, gallery]);
+  }, [product, detailPanelOpen]);
 
   // focus management + tab trap
   useEffect(() => {
@@ -257,23 +271,47 @@ export function ProductDetailPanel() {
     loadTimerRef.current = setTimeout(() => setImgOpacity(1), 30);
   }, []);
 
-  const goTo = useCallback(
-    (idx: number) => {
-      const newSrc = gallery[idx] ?? product?.hero ?? "";
-      if (newSrc === mainSrc) {
+  // fade-swap core — the single transition path; thumbnails, arrows and
+  // color switches all go through this (same timers + opacity dance).
+  const swapTo = useCallback(
+    (src: string | null, idx: number) => {
+      if (src === null) return;
+      if (src === mainSrc) {
         setImgIdx(idx);
         return;
       }
       if (gotoTimerRef.current) clearTimeout(gotoTimerRef.current);
       setImgOpacity(0);
       gotoTimerRef.current = setTimeout(() => {
-        setMainSrc(newSrc);
+        setMainSrc(src);
         setImgIdx(idx);
         gotoTimerRef.current = null;
       }, 200);
     },
-    [gallery, mainSrc, product],
+    [mainSrc],
   );
+
+  const goTo = useCallback(
+    (idx: number) => {
+      swapTo(gallery[idx] ?? product?.hero ?? "", idx);
+    },
+    [gallery, product, swapTo],
+  );
+
+  const handleColor = (name: string) => {
+    setColorName(name);
+    const sel = product?.colors.find((c) => c.name === name);
+    const imgs = sel?.images ?? [];
+    const nextStrip =
+      imgs.length > 0
+        ? imgs
+        : product && product.gallery.length > 0
+          ? product.gallery
+          : product
+            ? [product.hero]
+            : [];
+    swapTo(nextStrip[0] ?? product?.hero ?? "", 0);
+  };
 
   const handleAdd = useCallback(() => {
     if (!product || !size || soldOut(size)) return;
@@ -301,7 +339,8 @@ export function ProductDetailPanel() {
     [gallery, imgIdx, goTo],
   );
 
-  if (!product) return null;
+  // render guard (after all hooks — see note at top of component)
+  if (!detailPanelOpen || !product) return null;
 
   const categoryLabel =
     product.category === "crocs" ? "Crocs" : product.category === "trousers" ? "Trousers" : "Shop";
@@ -402,13 +441,16 @@ export function ProductDetailPanel() {
           {/* ---- Details column ---- */}
           <div className="pdp-details-col">
             <div className="pdp-top-row">
-              <h1 className="pdp-name">{product.name}</h1>
+              <div>
+                <h1 className="pdp-name">{product.name}</h1>
+                <div className="sku-subtext">{getProductSku(product.id)}</div>
+              </div>
               <button
                 type="button"
                 className={`pdp-wish-btn${wish ? " active" : ""}`}
                 aria-label={wish ? "Remove from wishlist" : "Add to wishlist"}
                 aria-pressed={wish}
-                onClick={() => setWish((w) => !w)}
+                onClick={() => product && wishlist.toggleWishlist(product)}
               >
                 <Heart size={18} strokeWidth={2} />
               </button>
@@ -565,7 +607,7 @@ export function ProductDetailPanel() {
                 type="button"
                 className="pdp-wish-btn"
                 aria-label="Add to wishlist"
-                onClick={() => setWish((w) => !w)}
+                onClick={() => product && wishlist.toggleWishlist(product)}
               >
                 <Heart size={18} strokeWidth={2} />
               </button>

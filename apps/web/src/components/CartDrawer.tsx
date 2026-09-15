@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useCart, fmtPrice } from "@/lib/cart";
-import { ProductCodeTag } from "./ProductCodeTag";
+import { getProductSku } from "./ProductCodeTag";
+import { LikedProductsDrawerSection } from "./LikedProductsSection";
 
 const CART_DRAWER_WIDTH = 400;
 const MOBILE_BREAKPOINT = 640;
@@ -92,11 +94,11 @@ function CartItemRow({
         ) : (
           <div className="cart-item-img-slot" />
         )}
-        <ProductCodeTag productId={item.productId} />
       </div>
 
       <div className="cart-item-info">
         <p className="cart-item-name">{item.name}</p>
+        <p className="cart-item-sku">{getProductSku(item.productId)}</p>
         <p className="cart-item-meta">
           {item.color} · {item.size}
         </p>
@@ -122,7 +124,8 @@ function CartItemRow({
   );
 }
 
-function EmptyState() {
+function EmptyState({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
   return (
     <div className="cart-empty">
       <div className="cart-empty-icon">
@@ -137,7 +140,10 @@ function EmptyState() {
       <button
         type="button"
         className="cart-empty-shop-btn"
-        onClick={() => {}}
+        onClick={() => {
+          onClose();
+          router.push("/shop");
+        }}
         aria-label="Go to shop"
       >
         Shop now
@@ -148,6 +154,7 @@ function EmptyState() {
 
 export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const cart = useCart();
+  const router = useRouter();
   const drawerRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
@@ -233,7 +240,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
         {/* scrollable items */}
         <div className="cart-drawer-items">
           {cart.items.length === 0 ? (
-            <EmptyState />
+            <EmptyState onClose={onClose} />
           ) : (
             cart.items.map((item) => (
               <CartItemRow
@@ -248,6 +255,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
               />
             ))
           )}
+          <LikedProductsDrawerSection />
         </div>
 
         {/* pinned footer */}
@@ -276,7 +284,10 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
           <button
             type="button"
             className="cart-drawer-checkout"
-            onClick={() => {}}
+            onClick={() => {
+              onClose();
+              router.push("/checkout");
+            }}
           >
             Continue to Checkout
           </button>

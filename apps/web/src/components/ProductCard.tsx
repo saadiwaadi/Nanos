@@ -5,8 +5,9 @@ import { Heart } from "lucide-react";
 import { useState } from "react";
 import type { Product } from "@nanospk/shared-types";
 import { ImgOrSlot } from "./ImgOrSlot";
-import { ProductCodeTag } from "./ProductCodeTag";
+import { getProductSku } from "./ProductCodeTag";
 import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
 import { useProductModal } from "./ProductModalContext";
 import { productSlotNums } from "@/lib/imageSlots";
 
@@ -26,8 +27,9 @@ export function ProductCard({ product: p }: { product: Product }) {
   const badge = badgeClass(p);
   const slot = productSlotNums(p.id);
   const [added, setAdded] = useState(false);
-  const [wished, setWished] = useState(false);
   const cart = useCart();
+  const wishlist = useWishlist();
+  const wished = wishlist.isWishlisted(p.id);
   const { openProduct } = useProductModal();
 
   function handleCardClick(e: React.MouseEvent) {
@@ -62,7 +64,6 @@ export function ProductCard({ product: p }: { product: Product }) {
           slotNum={slot.num}
           showBadge
         />
-        <ProductCodeTag productId={p.id} slotNum={slot.num} />
         <div className="badges">
           {badge && (
             <span className={badge}>
@@ -78,8 +79,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            // Wishlist API lands with the UsersModule — local echo for now.
-            setWished((w) => !w);
+            wishlist.toggleWishlist(p);
           }}
         >
           <Heart size={16} strokeWidth={2} />
@@ -87,6 +87,7 @@ export function ProductCard({ product: p }: { product: Product }) {
       </Link>
       <Link href={`/product/${p.id}`} className="product-info" onClick={handleCardClick}>
         <h3>{p.name}</h3>
+        <div className="sku-subtext">{getProductSku(p.id)}</div>
         <div className="variant">{p.colors[0]?.name}</div>
         <div className="price-row">
           <span className="price">{fmtPrice(p.price)}</span>

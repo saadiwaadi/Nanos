@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
-const API_BASE = 'http://localhost:4000';
+import { API_BASE } from '@/lib/api';
+
 
 type Variant = { id: string; color: string; size: string; stock: number };
 type Product = {

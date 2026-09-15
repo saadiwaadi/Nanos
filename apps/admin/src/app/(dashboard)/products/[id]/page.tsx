@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-const API_BASE = 'http://localhost:4000';
+import { API_BASE } from '@/lib/api';
+
 
 type Variant = { id: string; color: string; size: string; stock: number };
 type Product = {
@@ -18,6 +19,24 @@ type Product = {
   hero: string;
   galleryJson: string;
   variants: Variant[];
+};
+
+type ProductColor = {
+  id: string;
+  productId: string;
+  name: string;
+  hex: string;
+  imagesJson: string;
+  sortOrder: number;
+};
+
+type ColorState = {
+  id: string;
+  name: string;
+  hex: string;
+  images: string[];
+  status: 'idle' | 'saving' | 'saved' | 'error';
+  error: string | null;
 };
 
 type CellStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -51,6 +70,10 @@ export default function ProductEditPage() {
   const [tag, setTag] = useState(''); // '' = null
   const [hero, setHero] = useState('');
   const [gallery, setGallery] = useState<string[]>([]);
+
+  // per-color editing state (Colors section)
+  const [colorRows, setColorRows] = useState<Record<string, ColorState>>({});
+  const [colorOrder, setColorOrder] = useState<string[]>([]);
 
   // variant stock grid: key = `${color}|${size}`
   const [colors, setColors] = useState<string[]>([]);
@@ -90,6 +113,29 @@ export default function ProductEditPage() {
         // leave gallery empty if malformed
       }
       setGallery(imgs);
+
+      const nextColors: Record<string, ColorState> = {};
+      const nextOrder: string[] = [];
+      for (const c of (data as Product & { colors?: ProductColor[] }).colors ?? []) {
+        let cimgs: string[] = [];
+        try {
+          const parsed = JSON.parse(c.imagesJson);
+          if (Array.isArray(parsed)) cimgs = parsed.map(String);
+        } catch {
+          // leave images empty if malformed
+        }
+        nextColors[c.id] = {
+          id: c.id,
+          name: c.name,
+          hex: c.hex,
+          images: cimgs,
+          status: 'idle',
+          error: null,
+        };
+        nextOrder.push(c.id);
+      }
+      setColorOrder(nextOrder);
+      setColorRows(nextColors);
 
       const uniqColors = [...new Set(data.variants.map((v) => v.color))].sort((a, b) =>
         a.localeCompare(b, undefined, { numeric: true }),
@@ -154,6 +200,124 @@ export default function ProductEditPage() {
       }
     } catch {
       setCells((c) => ({ ...c, [key]: { ...cell, status: 'error', error: 'Save failed (network)' } }));
+    }
+  };
+
+  const colorReq = async (
+    cid: string,
+    method: 'POST' | 'PATCH' | 'DELETE',
+    body?: unknown,
+  ): Promise<Response | null> => {
+    try {
+      return await fetch(
+        method === 'POST'
+          ? `${API_BASE}/admin/products/${id}/colors`
+          : `${API_BASE}/admin/products/${id}/colors/${cid}`,
+        {
+          method,
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: body === undefined ? undefined : JSON.stringify(body),
+        },
+      );
+    } catch {
+      return null;
+    }
+  };
+
+  const saveColor = async (cid: string) => {
+    const c = colorRows[cid];
+    if (!c) return;
+    setColorRows((prev) => (prev ? { ...prev, [cid]: { ...prev[cid], status: 'saving', error: null } } : prev));
+    const res = await colorReq(cid, 'PATCH', {
+      name: c.name.trim(),
+      hex: c.hex,
+      imagesJson: JSON.stringify(c.images.filter((u) => u.trim() !== '')),
+    });
+    if (res && res.status === 200) {
+      setColorRows((prev) =>
+        prev ? { ...prev, [cid]: { ...prev[cid], status: 'saved', error: null } } : prev,
+      );
+      setTimeout(
+        () =>
+          setColorRows((prev) =>
+            prev && prev[cid] && prev[cid].status === 'saved'
+              ? { ...prev, [cid]: { ...prev[cid], status: 'idle' } }
+              : prev,
+          ),
+        2000,
+      );
+    } else {
+      setColorRows((prev) =>
+        prev
+          ? {
+              ...prev,
+              [cid]: {
+                ...prev[cid],
+                status: 'error',
+                error: res ? `Save failed (status ${res.status})` : 'Save failed (network error)',
+              },
+            }
+          : prev,
+      );
+    }
+  };
+
+  const [addingColor, setAddingColor] = useState(false);
+
+  const addColor = async () => {
+    setAddingColor(true);
+    // Blank color (transparent-black placeholder hex); user edits it in place.
+    const res = await colorReq('', 'POST', { name: 'New color', hex: '#111111' });
+    setAddingColor(false);
+    if (res && res.status === 201) {
+      const created = (await res.json()) as ProductColor;
+      setColorRows((prev) => ({
+        ...(prev ?? {}),
+        [created.id]: {
+          id: created.id,
+          name: created.name,
+          hex: created.hex,
+          images: [],
+          status: 'idle',
+          error: null,
+        },
+      }));
+      setColorOrder((prev) => [...prev, created.id]);
+    } else {
+      alert(
+        res ? `Add color failed (status ${res.status})` : 'Add color failed (network error)',
+      );
+    }
+  };
+
+  const deleteColor = async (cid: string) => {
+    if (colorOrder.length <= 1) return; // UI guard: never fire the doomed request
+    const c = colorRows[cid];
+    if (!c) return;
+    setColorRows((prev) => (prev ? { ...prev, [cid]: { ...prev[cid], status: 'saving', error: null } } : prev));
+    const res = await colorReq(cid, 'DELETE');
+    if (res && res.status === 200) {
+      setColorRows((prev) => {
+        if (!prev) return prev;
+        const next = { ...prev };
+        delete next[cid];
+        return next;
+      });
+      setColorOrder((prev) => prev.filter((x) => x !== cid));
+    } else {
+      setColorRows((prev) =>
+        prev
+          ? {
+              ...prev,
+              [cid]: {
+                ...prev[cid],
+                status: 'error',
+                error: res ? `Delete failed (status ${res.status})` : 'Delete failed (network error)',
+              },
+            }
+          : prev,
+      );
     }
   };
 
@@ -271,7 +435,102 @@ export default function ProductEditPage() {
         Add image
       </button>
 
-      <h2>Variant stock</h2>
+      <h2>Colors</h2>
+      <p style={{ marginTop: -6, opacity: 0.7 }}>
+        Each color can carry its own image list — the storefront PDP shows the
+        selected color&apos;s images first (falling back to the product gallery).
+      </p>
+      {colorOrder.map((cid) => {
+        const c = colorRows[cid];
+        if (!c) return null;
+        const update = (patch: Partial<ColorState>) =>
+          setColorRows((prev) => (prev ? { ...prev, [cid]: { ...prev[cid], ...patch } } : prev));
+        return (
+          <div
+            key={cid}
+            style={{
+              border: 'var(--border)',
+              borderRadius: 'var(--radius)',
+              padding: 12,
+              marginBottom: 12,
+              maxWidth: 560,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input
+                type="color"
+                aria-label={`Color picker for ${c.name || 'color'}`}
+                value={c.hex}
+                onChange={(e) => update({ hex: e.target.value })}
+                style={{ width: 42, height: 32, padding: 2 }}
+              />
+              <input
+                style={{ width: 180 }}
+                value={c.name}
+                placeholder="Color name"
+                onChange={(e) => update({ name: e.target.value })}
+              />
+              <span style={{ fontFamily: 'monospace', fontSize: 12, opacity: 0.6 }}>{c.hex}</span>
+              <span style={{ flex: 1 }} />
+              <button
+                type="button"
+                className="btn-secondary"
+                disabled={colorOrder.length <= 1 || c.status === 'saving'}
+                title={colorOrder.length <= 1 ? 'A product must keep at least one color' : undefined}
+                onClick={() => void deleteColor(cid)}
+              >
+                Delete
+              </button>
+            </div>
+            {c.images.map((url, i) => (
+              <div key={i} style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <input
+                  style={{ flex: 1 }}
+                  value={url}
+                  placeholder="Image URL"
+                  onChange={(e) =>
+                    update({ images: c.images.map((u, j) => (j === i ? e.target.value : u)) })
+                  }
+                />
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => update({ images: c.images.filter((_, j) => j !== i) })}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <div style={{ marginTop: 8 }}>
+              <button type="button" className="btn-secondary" onClick={() => update({ images: [...c.images, ''] })}>
+                Add image URL
+              </button>
+            </div>
+            <div style={{ marginTop: 10 }}>
+              <button
+                type="button"
+                className="btn-primary"
+                disabled={c.status === 'saving' || c.name.trim() === ''}
+                onClick={() => void saveColor(cid)}
+              >
+                {c.status === 'saving' ? 'Saving…' : 'Save color'}
+              </button>{' '}
+              {c.status === 'saved' && <span style={{ color: 'var(--color-success)' }}>Saved</span>}
+              {c.status === 'error' && <span style={{ color: 'var(--color-error)' }}>{c.error}</span>}
+            </div>
+          </div>
+        );
+      })}
+      <button
+        type="button"
+        className="btn-secondary"
+        disabled={addingColor}
+        onClick={() => void addColor()}
+      >
+        {addingColor ? 'Adding…' : 'Add color'}
+      </button>
+
+      <h2 style={{ marginTop: 32 }}>Variant stock</h2>
       {sizes.length === 0 || colors.length === 0 ? (
         <p>No variants defined for this product.</p>
       ) : (

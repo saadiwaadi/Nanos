@@ -32,6 +32,30 @@ export class AdminProductsController {
     return this.service.remove(id);
   }
 
+  @Post(':id/colors')
+  addColor(
+    @Param('id') id: string,
+    @Body('name') name: string,
+    @Body('hex') hex: string,
+    @Body('imagesJson') imagesJson?: string,
+  ) {
+    return this.service.addColor(id, { name, hex, imagesJson });
+  }
+
+  @Patch(':id/colors/:colorId')
+  updateColor(
+    @Param('id') id: string,
+    @Param('colorId') colorId: string,
+    @Body() body: { name?: string; hex?: string; imagesJson?: string; sortOrder?: number },
+  ) {
+    return this.service.updateColor(id, colorId, body);
+  }
+
+  @Delete(':id/colors/:colorId')
+  removeColor(@Param('id') id: string, @Param('colorId') colorId: string) {
+    return this.service.removeColor(id, colorId);
+  }
+
   @Patch(':id/variants/:color/:size')
   updateVariantStock(
     @Param('id') id: string,

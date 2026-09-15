@@ -8,7 +8,8 @@ import {
   FREE_SHIPPING_THRESHOLD,
 } from "@/lib/cart";
 import { ImgOrSlot } from "@/components/ImgOrSlot";
-import { ProductCodeTag } from "@/components/ProductCodeTag";
+import { getProductSku } from "@/components/ProductCodeTag";
+import { LikedProductsSection } from "@/components/LikedProductsSection";
 import { productSlotNums } from "@/lib/imageSlots";
 
 /**
@@ -49,6 +50,7 @@ export default function CartPage() {
               Start Shopping
             </Link>
           </div>
+          <LikedProductsSection title="Products You Liked" />
         </div>
       </div>
     );
@@ -84,14 +86,13 @@ export default function CartPage() {
                     alt={item.name}
                     slotName={`PRODUCT-IMAGE:${item.productId}`}
                     slotNum={productSlotNums(item.productId).num}
-                    showBadge
                   />
-                  <ProductCodeTag productId={item.productId} slotNum={productSlotNums(item.productId).num} />
                 </Link>
                 <div className="cart-line-info">
                   <h3>
                     <Link href={`/product/${item.productId}`}>{item.name}</Link>
                   </h3>
+                  <div className="cart-line-sku">{getProductSku(item.productId)}</div>
                   <div className="meta">
                     {item.color} · Size {item.size}
                   </div>
@@ -205,6 +206,9 @@ export default function CartPage() {
             </Link>
           </div>
         </div>
+
+        {/* Liked / Wishlisted products suggestions section */}
+        <LikedProductsSection />
       </div>
     </div>
   );

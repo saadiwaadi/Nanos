@@ -29,3 +29,6 @@ apps/web/*.png
 *.njsproj
 *.sln
 *.sw?
+
+# Scratch scripts and temporary verification files
+scratch/

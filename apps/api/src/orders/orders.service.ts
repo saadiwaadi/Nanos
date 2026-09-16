@@ -4,10 +4,12 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import * as crypto from "crypto";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { extractBearer, JwtPayload } from "../auth/jwt.strategy.js";
 import { CreateOrderDto } from "./dto/order.dto.js";
 import { OrdersEmailService } from "./orders-email.service.js";
+import { PostexService } from "../postex/postex.service.js";
 
 @Injectable()
 export class OrdersService {
@@ -15,6 +17,7 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly ordersEmailService: OrdersEmailService,
+    private readonly postexService: PostexService,
   ) {}
 
   async createOrder(dto: CreateOrderDto, authHeader?: string) {
@@ -131,6 +134,10 @@ export class OrdersService {
     const shipping = 0;
     const total = subtotal - discount + shipping;
 
+    const city = typeof shippingInfo.city === "string" ? shippingInfo.city.trim() : "";
+    const isAutoBook = await this.postexService.isAutoBookCity(city);
+    const courierBookingStatus = isAutoBook ? "pending_auto" : "pending_manual_review";
+
     const order = await this.prisma.order.create({
       data: {
         userId: userId ?? null,
@@ -143,6 +150,8 @@ export class OrdersService {
         shippingInfo: dto.shippingInfo ?? {},
         payment: "cod",
         status: "processing",
+        courierBookingStatus: courierBookingStatus as any,
+        pickupAddressCode: "001",
         items: {
           create: preparedItems.map((item) => ({
             productId: item.productId,
@@ -164,9 +173,60 @@ export class OrdersService {
       this.ordersEmailService
         .sendOrderConfirmation(order, recipientEmail, recipientName)
         .catch(() => {});
+
+      this.sendMetaPurchaseEvent(order, recipientEmail).catch(() => {});
     }
 
     return order;
+  }
+
+  private async sendMetaPurchaseEvent(
+    order: { id: string; total: number },
+    email: string,
+  ) {
+    const pixelId =
+      process.env.META_PIXEL_ID || process.env.NEXT_PUBLIC_META_PIXEL_ID;
+    const token = process.env.META_CONVERSIONS_API_TOKEN;
+
+    if (!pixelId || !token) {
+      return;
+    }
+
+    const hashedEmail = crypto
+      .createHash("sha256")
+      .update(email.trim().toLowerCase())
+      .digest("hex");
+
+    const url = `https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${token}`;
+    const payload = {
+      data: [
+        {
+          event_name: "Purchase",
+          event_time: Math.floor(Date.now() / 1000),
+          event_id: order.id,
+          action_source: "website",
+          user_data: {
+            em: [hashedEmail],
+          },
+          custom_data: {
+            currency: "PKR",
+            value: order.total,
+          },
+        },
+      ],
+    };
+
+    try {
+      await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      // Non-blocking catch per requirements
+    }
   }
 
   async getUserOrders(userId: string) {

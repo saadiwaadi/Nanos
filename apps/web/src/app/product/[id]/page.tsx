@@ -4,15 +4,35 @@ import { ProductDetail } from "@/components/ProductDetail";
 import { ProductCard } from "@/components/ProductCard";
 import Link from "next/link";
 
+import type { Metadata } from "next";
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
-}) {
+}): Promise<Metadata> {
   const { id } = await params;
   try {
     const product = await getProduct(id);
-    return { title: product.name };
+    const description =
+      product.desc || `${product.name} — available at nanos.pk`;
+    return {
+      title: product.name,
+      description,
+      openGraph: {
+        title: product.name,
+        description,
+        images: product.hero ? [{ url: product.hero, alt: product.name }] : [],
+        url: `https://nanos.pk/product/${product.id}`,
+        siteName: "nanos.pk",
+      },
+      other: {
+        "og:type": "product",
+        "og:price": product.price.toString(),
+        "product:price:amount": product.price.toString(),
+        "product:price:currency": "PKR",
+      },
+    };
   } catch {
     return { title: "Product" };
   }

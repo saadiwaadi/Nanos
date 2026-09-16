@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Truck, RotateCcw, Headset } from "lucide-react";
 import type { Product } from "@nanospk/shared-types";
 import { cn } from "@/lib/api";
@@ -8,6 +8,7 @@ import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { productSlotNums } from "@/lib/imageSlots";
 import { ProductCodeChip, getProductSku } from "./ProductCodeTag";
+import { trackViewContent, trackAddToCart } from "@/lib/pixel";
 
 function fmtPrice(n: number) {
   return "PKR " + n.toLocaleString("en-PK");
@@ -22,6 +23,15 @@ export function ProductDetail({ product: p }: { product: Product }) {
   const cart = useCart();
   const wishlist = useWishlist();
   const wished = wishlist.isWishlisted(p.id);
+
+  useEffect(() => {
+    trackViewContent({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      currency: "PKR",
+    });
+  }, [p.id, p.name, p.price]);
 
   // Gallery derives from the SELECTED COLOR's images (backfilled per-color
   // galleries); falls back to the product-wide gallery, then to hero.
@@ -46,6 +56,13 @@ export function ProductDetail({ product: p }: { product: Product }) {
       price: p.price,
       img: gallery[imgIdx] ?? p.hero,
     }, qty);
+    trackAddToCart({
+      productId: p.id,
+      name: p.name,
+      price: p.price,
+      quantity: qty,
+      currency: "PKR",
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }

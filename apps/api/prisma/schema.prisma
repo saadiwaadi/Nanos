@@ -117,22 +117,56 @@ model WishlistItem {
   @@unique([userId, productId])
 }
 
+enum CourierBookingStatus {
+  pending_auto
+  pending_manual_review
+  queued_for_batch
+  booked
+  booking_failed
+  delivered
+  returned
+}
+
 model Order {
-  id           String      @id @default(cuid())
-  userId       String?
-  guestEmail   String?
-  guestName    String?
-  subtotal     Int         @default(0)
-  discount     Int         @default(0)
-  shipping     Int         @default(0)
-  total        Int         @default(0)
-  shippingInfo Json        @default("{}")
-  payment      String      @default("cod")
-  status       String      @default("processing")
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  user         User?       @relation(fields: [userId], references: [id])
-  items        OrderItem[]
+  id                   String                @id @default(cuid())
+  userId               String?
+  guestEmail           String?
+  guestName            String?
+  subtotal             Int                   @default(0)
+  discount             Int                   @default(0)
+  shipping             Int                   @default(0)
+  total                Int                   @default(0)
+  shippingInfo         Json                  @default("{}")
+  payment              String                @default("cod")
+  status               String                @default("processing")
+  postexTrackingNumber String?
+  postexStatus         String?
+  courierBookingStatus CourierBookingStatus?
+  adminApproved        Boolean               @default(false)
+  pickupAddressCode    String?               @default("001")
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  user                 User?                 @relation(fields: [userId], references: [id])
+  items                OrderItem[]
+  bookingLogs          PostexBookingLog[]
+}
+
+model PostexBookingLog {
+  id              String   @id @default(cuid())
+  orderId         String
+  attemptedAt     DateTime @default(now())
+  requestPayload  Json
+  responsePayload Json
+  success         Boolean
+  errorMessage    String?
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model PostexAutoBookCity {
+  id        String   @id @default(cuid())
+  cityName  String   @unique
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
 }
 
 model OrderItem {
@@ -146,3 +180,4 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
 }
+

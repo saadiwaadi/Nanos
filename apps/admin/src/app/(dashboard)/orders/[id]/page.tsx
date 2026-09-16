@@ -35,6 +35,9 @@ type OrderDetail = {
   shippingInfo: any;
   payment: string;
   status: string;
+  postexTrackingNumber?: string | null;
+  postexStatus?: string | null;
+  courierBookingStatus?: string | null;
   items: OrderItem[];
 };
 
@@ -139,7 +142,7 @@ export default function OrderDetailPage() {
         Placed on {new Date(order.createdAt).toLocaleString()}
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, margin: '24px 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, margin: '24px 0' }}>
         <div style={{ border: 'var(--border)', padding: 16, borderRadius: 6 }}>
           <h3 style={{ marginTop: 0 }}>Customer Info</h3>
           <div><strong>Name:</strong> {order.customerName || 'N/A'}</div>
@@ -155,6 +158,27 @@ export default function OrderDetailPage() {
           <div><strong>Address:</strong> {shipping.address || 'N/A'}</div>
           <div><strong>City / Postal:</strong> {shipping.city || ''} {shipping.postalCode || ''}</div>
           <div style={{ marginTop: 8 }}><strong>Payment Method:</strong> {order.payment.toUpperCase()}</div>
+        </div>
+
+        <div style={{ border: 'var(--border)', padding: 16, borderRadius: 6 }}>
+          <h3 style={{ marginTop: 0 }}>PostEx Courier Status</h3>
+          <div><strong>Booking Status:</strong> {order.courierBookingStatus || 'N/A'}</div>
+          <div>
+            <strong>Tracking #:</strong>{' '}
+            {order.postexTrackingNumber ? (
+              <a
+                href={`https://postex.pk/tracking?trackingNumber=${order.postexTrackingNumber}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontWeight: 600, color: 'var(--color-accent)' }}
+              >
+                {order.postexTrackingNumber}
+              </a>
+            ) : (
+              'Not booked yet'
+            )}
+          </div>
+          <div><strong>PostEx Status:</strong> {order.postexStatus || 'N/A'}</div>
         </div>
       </div>
 

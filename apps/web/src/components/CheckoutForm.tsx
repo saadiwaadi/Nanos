@@ -7,6 +7,7 @@ import { PayMethodPicker } from "@/components/PayMethodPicker";
 import { useCart, fmtPrice } from "@/lib/cart";
 import { getToken, saveSession } from "@/lib/auth";
 import { API_BASE } from "@/lib/api";
+import { trackInitiateCheckout } from "@/lib/pixel";
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -33,6 +34,18 @@ export function CheckoutForm() {
   useEffect(() => {
     const token = getToken();
     setIsLoggedIn(Boolean(token));
+
+    if (cart.items.length > 0) {
+      trackInitiateCheckout(
+        cart.items.map((i) => ({
+          productId: i.productId,
+          price: i.price,
+          quantity: i.qty,
+        })),
+        cart.total,
+        "PKR",
+      );
+    }
   }, []);
 
   const phoneDigits = (phone.match(/\d/g) || []).length;

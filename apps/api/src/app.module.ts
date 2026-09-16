@@ -10,8 +10,12 @@ import { AdminSettingsModule } from './admin-settings/admin-settings.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { AdminOrdersModule } from './admin-orders/admin-orders.module.js';
 
+import { ScheduleModule } from '@nestjs/schedule';
+import { PostexModule } from './postex/postex.module.js';
+
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     PrismaModule,
     ProductsModule,
     AuthModule,
@@ -20,6 +24,7 @@ import { AdminOrdersModule } from './admin-orders/admin-orders.module.js';
     AdminSettingsModule,
     OrdersModule,
     AdminOrdersModule,
+    PostexModule,
   ],
   controllers: [AppController],
   providers: [AppService],

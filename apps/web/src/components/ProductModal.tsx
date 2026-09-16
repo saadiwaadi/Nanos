@@ -16,6 +16,8 @@ import { useProductModal } from "./ProductModalContext";
 import { productSlotNums } from "@/lib/imageSlots";
 import { ProductCodeChip, getProductSku } from "./ProductCodeTag";
 
+import { trackViewContent, trackAddToCart } from "@/lib/pixel";
+
 const SIZE_CHART = [
   { us: "US 6", uk: "UK 5.5", eu: "39", cm: "24.5" },
   { us: "US 6.5", uk: "UK 6", eu: "39.5", cm: "24.8" },
@@ -175,6 +177,12 @@ export function ProductModal() {
   // deps would re-run this on every swatch click and clobber the selection.
   useEffect(() => {
     if (!product) return;
+    trackViewContent({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      currency: "PKR",
+    });
     if (gotoTimerRef.current) clearTimeout(gotoTimerRef.current);
     if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
     const colors = product.colors;
@@ -283,6 +291,13 @@ export function ProductModal() {
       },
       qty,
     );
+    trackAddToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: qty,
+      currency: "PKR",
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   }, [product, size, soldOut, colorName, qty, mainSrc, cart]);

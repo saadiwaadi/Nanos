@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { API_BASE } from '@/lib/api';
 
@@ -30,6 +30,8 @@ type OrderListResponse = {
   };
 };
 
+const PAGE_SIZE = 100;
+
 type StatusFilter = 'all' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 type CustomerFilter = 'all' | 'guest' | 'account';
 type DateFilter = 'all' | 'today' | '7days' | '30days';
@@ -38,6 +40,8 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderSummary[] | null>(null);
   const [meta, setMeta] = useState<OrderListResponse['meta'] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
 
   // Filter States
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -45,27 +49,42 @@ export default function OrdersPage() {
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch(`${API_BASE}/admin/orders?limit=100`, { credentials: 'include' });
-        if (res.status === 401) {
-          window.location.href = '/';
-          return;
-        }
-        if (res.status !== 200) {
-          setError(`Failed to load orders (status ${res.status})`);
-          return;
-        }
-        const data: OrderListResponse = await res.json();
-        setOrders(data.data);
-        setMeta(data.meta);
-      } catch {
-        setError('Network error while fetching orders');
+  const fetchPage = useCallback(async (page: number, append: boolean) => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/orders?page=${page}&limit=${PAGE_SIZE}`, {
+        credentials: 'include',
+      });
+      if (res.status === 401) {
+        window.location.href = '/';
+        return;
       }
+      if (res.status !== 200) {
+        if (append) setLoadMoreError(`Failed to load more orders (status ${res.status})`);
+        else setError(`Failed to load orders (status ${res.status})`);
+        return;
+      }
+      const data: OrderListResponse = await res.json();
+      setMeta(data.meta);
+      setOrders((prev) => (append && prev ? [...prev, ...data.data] : data.data));
+    } catch {
+      if (append) setLoadMoreError('Network error while loading more orders');
+      else setError('Network error while fetching orders');
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    void fetchPage(1, false);
+  }, [fetchPage]);
+
+  const hasMore = meta != null && meta.page < meta.totalPages;
+
+  const loadMore = async () => {
+    if (!meta || loadingMore) return;
+    setLoadingMore(true);
+    setLoadMoreError(null);
+    await fetchPage(meta.page + 1, true);
+    setLoadingMore(false);
+  };
 
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
@@ -110,7 +129,10 @@ export default function OrdersPage() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h1>Orders ({filteredOrders.length} of {meta?.total ?? orders.length})</h1>
+        <h1>
+          Orders ({filteredOrders.length} matching · {orders.length} of{' '}
+          {meta?.total ?? orders.length} loaded)
+        </h1>
       </div>
 
       {/* Filter Toolbar */}
@@ -294,6 +316,37 @@ export default function OrdersPage() {
             })}
           </tbody>
         </table>
+      )}
+
+      {hasMore && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 8,
+            marginTop: 20,
+          }}
+        >
+          {loadMoreError && (
+            <div style={{ color: 'var(--color-error)', fontSize: 13 }}>{loadMoreError}</div>
+          )}
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => void loadMore()}
+            disabled={loadingMore}
+          >
+            {loadingMore
+              ? 'Loading…'
+              : `Load more orders (${orders.length} of ${meta?.total ?? '…'} loaded)`}
+          </button>
+        </div>
+      )}
+      {!hasMore && orders.length > 0 && (
+        <p style={{ textAlign: 'center', opacity: 0.6, fontSize: 13, marginTop: 20 }}>
+          All {orders.length} orders loaded.
+        </p>
       )}
     </div>
   );

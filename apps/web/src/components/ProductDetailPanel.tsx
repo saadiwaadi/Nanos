@@ -14,7 +14,6 @@ import type { Product } from "@nanospk/shared-types";
 import { useCart, fmtPrice } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { useProductModal } from "./ProductModalContext";
-import { ProductCodeChip, getProductSku } from "./ProductCodeTag";
 
 const SIZE_CHART = [
   { us: "US 6", uk: "UK 5.5", eu: "39", cm: "24.5" },
@@ -443,7 +442,6 @@ export function ProductDetailPanel() {
             <div className="pdp-top-row">
               <div>
                 <h1 className="pdp-name">{product.name}</h1>
-                <div className="sku-subtext">{getProductSku(product.id)}</div>
               </div>
               <button
                 type="button"
@@ -646,7 +644,6 @@ export function ProductDetailPanel() {
             {showDesc && (
               <div className="pdp-desc">
                 {desc || "No description available for this product."}
-                {desc && <ProductCodeChip productId={product.id} />}
               </div>
             )}
           </div>

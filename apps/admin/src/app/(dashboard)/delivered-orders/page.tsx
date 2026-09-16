@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { API_BASE } from '@/lib/api';
 
@@ -30,12 +30,17 @@ type OrderListResponse = {
   };
 };
 
+const PAGE_SIZE = 200;
+
 type CustomerFilter = 'all' | 'guest' | 'account';
 type PresetDateFilter = 'all' | 'today' | 'yesterday' | '7days' | '30days' | 'thisMonth' | 'custom';
 
 export default function DeliveredOrdersPage() {
   const [orders, setOrders] = useState<OrderSummary[] | null>(null);
+  const [meta, setMeta] = useState<OrderListResponse['meta'] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
 
   // Filters
   const [customerFilter, setCustomerFilter] = useState<CustomerFilter>('all');
@@ -44,31 +49,47 @@ export default function DeliveredOrdersPage() {
   const [endDate, setEndDate] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch(`${API_BASE}/admin/orders?limit=200`, { credentials: 'include' });
-        if (res.status === 401) {
-          window.location.href = '/';
-          return;
-        }
-        if (res.status !== 200) {
-          setError(`Failed to load orders (status ${res.status})`);
-          return;
-        }
-        const data: OrderListResponse = await res.json();
-        // Filter strictly for delivered status and sort latest to oldest
-        const delivered = (data.data || [])
-          .filter((o) => o.status.toLowerCase() === 'delivered')
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-        setOrders(delivered);
-      } catch {
-        setError('Network error while fetching delivered orders');
+  const fetchPage = useCallback(async (page: number, append: boolean) => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/orders?page=${page}&limit=${PAGE_SIZE}`, {
+        credentials: 'include',
+      });
+      if (res.status === 401) {
+        window.location.href = '/';
+        return;
       }
+      if (res.status !== 200) {
+        if (append) setLoadMoreError(`Failed to load more orders (status ${res.status})`);
+        else setError(`Failed to load orders (status ${res.status})`);
+        return;
+      }
+      const data: OrderListResponse = await res.json();
+      setMeta(data.meta);
+      // Filter strictly for delivered status and sort latest to oldest
+      const delivered = (data.data || [])
+        .filter((o) => o.status.toLowerCase() === 'delivered')
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      setOrders((prev) => (append && prev ? [...prev, ...delivered] : delivered));
+    } catch {
+      if (append) setLoadMoreError('Network error while loading more orders');
+      else setError('Network error while fetching delivered orders');
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    void fetchPage(1, false);
+  }, [fetchPage]);
+
+  const hasMore = meta != null && meta.page < meta.totalPages;
+
+  const loadMore = async () => {
+    if (!meta || loadingMore) return;
+    setLoadingMore(true);
+    setLoadMoreError(null);
+    await fetchPage(meta.page + 1, true);
+    setLoadingMore(false);
+  };
 
   // Handle Preset Date selection
   const handlePresetChange = (preset: PresetDateFilter) => {
@@ -377,6 +398,35 @@ export default function DeliveredOrdersPage() {
             })}
           </tbody>
         </table>
+      )}
+
+      {hasMore && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 8,
+            marginTop: 20,
+          }}
+        >
+          {loadMoreError && (
+            <div style={{ color: 'var(--color-error)', fontSize: 13 }}>{loadMoreError}</div>
+          )}
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => void loadMore()}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading…' : 'Load more history'}
+          </button>
+        </div>
+      )}
+      {!hasMore && orders.length > 0 && (
+        <p style={{ textAlign: 'center', opacity: 0.6, fontSize: 13, marginTop: 20 }}>
+          Full delivered history loaded ({orders.length} orders).
+        </p>
       )}
     </div>
   );

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist";
 import { useCart, fmtPrice } from "@/lib/cart";
-import { getProductSku } from "./ProductCodeTag";
 
 export function LikedProductsSection({ title = "Liked Products" }: { title?: string }) {
   const wishlist = useWishlist();
@@ -121,9 +120,6 @@ export function LikedProductsSection({ title = "Liked Products" }: { title?: str
 
                 <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>
                   {item.name}
-                </div>
-                <div style={{ fontSize: 11, color: "#777", marginBottom: 6 }}>
-                  {getProductSku(item.productId)}
                 </div>
                 <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>
                   {fmtPrice(item.price)}

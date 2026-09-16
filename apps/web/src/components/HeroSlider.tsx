@@ -75,7 +75,6 @@ export function HeroSlider() {
             aria-hidden={!active}
           >
             <div className="hero-banner-scrim" />
-            <span className="hero-slot-num">{slide.slotNum}</span>
           </div>
         );
       })}

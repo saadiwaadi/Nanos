@@ -7,7 +7,6 @@ import { cn } from "@/lib/api";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { productSlotNums } from "@/lib/imageSlots";
-import { ProductCodeChip, getProductSku } from "./ProductCodeTag";
 import { trackViewContent, trackAddToCart } from "@/lib/pixel";
 
 function fmtPrice(n: number) {
@@ -90,7 +89,6 @@ export function ProductDetail({ product: p }: { product: Product }) {
 
       <div className="pdp-info">
         <h1>{p.name}</h1>
-        <div className="sku-subtext">{getProductSku(p.id)}</div>
         <div className="pdp-sub">
           {p.category === "crocs" ? "Crocs" : "Trousers"} · {p.colors.length}{" "}
           colors available
@@ -220,10 +218,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
         <div className="pdp-accordion">
           <details open>
             <summary>Description</summary>
-            <p>
-              {p.desc}
-              <ProductCodeChip productId={p.id} />
-            </p>
+            <p>{p.desc}</p>
           </details>
           <details>
             <summary>Size &amp; Fit</summary>

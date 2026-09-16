@@ -5,7 +5,6 @@ import { Heart } from "lucide-react";
 import { useState } from "react";
 import type { Product } from "@nanospk/shared-types";
 import { ImgOrSlot } from "./ImgOrSlot";
-import { getProductSku } from "./ProductCodeTag";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { useProductModal } from "./ProductModalContext";
@@ -87,7 +86,6 @@ export function ProductCard({ product: p }: { product: Product }) {
       </Link>
       <Link href={`/product/${p.id}`} className="product-info" onClick={handleCardClick}>
         <h3>{p.name}</h3>
-        <div className="sku-subtext">{getProductSku(p.id)}</div>
         <div className="variant">{p.colors[0]?.name}</div>
         <div className="price-row">
           <span className="price">{fmtPrice(p.price)}</span>

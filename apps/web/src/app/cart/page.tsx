@@ -8,7 +8,6 @@ import {
   FREE_SHIPPING_THRESHOLD,
 } from "@/lib/cart";
 import { ImgOrSlot } from "@/components/ImgOrSlot";
-import { getProductSku } from "@/components/ProductCodeTag";
 import { LikedProductsSection } from "@/components/LikedProductsSection";
 import { productSlotNums } from "@/lib/imageSlots";
 
@@ -92,7 +91,6 @@ export default function CartPage() {
                   <h3>
                     <Link href={`/product/${item.productId}`}>{item.name}</Link>
                   </h3>
-                  <div className="cart-line-sku">{getProductSku(item.productId)}</div>
                   <div className="meta">
                     {item.color} · Size {item.size}
                   </div>

@@ -6,7 +6,6 @@ import { useParams } from 'next/navigation';
 
 import { API_BASE } from '@/lib/api';
 
-
 type Variant = { id: string; color: string; size: string; stock: number };
 type Product = {
   id: string;
@@ -79,6 +78,7 @@ export default function ProductEditPage() {
   const [colors, setColors] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
   const [cells, setCells] = useState<Record<string, CellState>>({});
+  const [addVariantStatus, setAddVariantStatus] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function load() {
@@ -200,6 +200,42 @@ export default function ProductEditPage() {
       }
     } catch {
       setCells((c) => ({ ...c, [key]: { ...cell, status: 'error', error: 'Save failed (network)' } }));
+    }
+  };
+
+  const addVariant = async (color: string, size: string) => {
+    const key = `${color}|${size}`;
+    setAddVariantStatus((s) => ({ ...s, [key]: 'adding' }));
+    try {
+      const res = await fetch(`${API_BASE}/admin/products/${id}/variants`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ color, size, stock: 0 }),
+      });
+      if (res.status === 201 || res.status === 200) {
+        const _v = await res.json();
+        void _v;
+        setCells((prev) => ({
+          ...prev,
+          [key]: { draft: '0', committed: 0, status: 'idle', error: null },
+        }));
+        setColors((prev) =>
+          [...new Set([...prev, color])].sort((a, b) =>
+            a.localeCompare(b, undefined, { numeric: true }),
+          ),
+        );
+        setSizes((prev) =>
+          [...new Set([...prev, size])].sort((a, b) =>
+            a.localeCompare(b, undefined, { numeric: true }),
+          ),
+        );
+        setAddVariantStatus((s) => ({ ...s, [key]: 'idle' }));
+      } else {
+        setAddVariantStatus((s) => ({ ...s, [key]: 'error' }));
+      }
+    } catch {
+      setAddVariantStatus((s) => ({ ...s, [key]: 'error' }));
     }
   };
 
@@ -550,7 +586,24 @@ export default function ProductEditPage() {
                 {colors.map((c) => {
                   const key = `${c}|${s}`;
                   const cell = cells[key];
-                  if (!cell) return <td key={key}>—</td>;
+                  if (!cell) {
+                    return (
+                      <td key={key}>
+                        <button
+                          type="button"
+                          className="btn-secondary"
+                          style={{ fontSize: 11, padding: '2px 8px' }}
+                          onClick={() => void addVariant(c, s)}
+                        >
+                          + Add
+                        </button>
+                        {addVariantStatus[key] === 'adding' && <small> adding…</small>}
+                        {addVariantStatus[key] === 'error' && (
+                          <small style={{ color: 'var(--color-error)' }}> failed</small>
+                        )}
+                      </td>
+                    );
+                  }
                   return (
                     <td key={key}>
                       <input

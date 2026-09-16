@@ -14,8 +14,6 @@ import { useCart, fmtPrice } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { useProductModal } from "./ProductModalContext";
 import { productSlotNums } from "@/lib/imageSlots";
-import { ProductCodeChip, getProductSku } from "./ProductCodeTag";
-
 import { trackViewContent, trackAddToCart } from "@/lib/pixel";
 
 const SIZE_CHART = [
@@ -430,7 +428,6 @@ export function ProductModal() {
             >
               <div>
                 <h1 className="pmq-name">{product.name}</h1>
-                <div className="sku-subtext">{getProductSku(product.id)}</div>
               </div>
               <button
                 type="button"
@@ -606,10 +603,7 @@ export function ProductModal() {
               </p>
             )}
 
-            <p className="pmq-desc">
-              {desc}
-              <ProductCodeChip productId={product.id} />
-            </p>
+            <p className="pmq-desc">{desc}</p>
           </div>
         </div>
       </div>

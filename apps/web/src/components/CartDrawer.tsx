@@ -3,7 +3,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useCart, fmtPrice } from "@/lib/cart";
-import { getProductSku } from "./ProductCodeTag";
 import { LikedProductsDrawerSection } from "./LikedProductsSection";
 
 const CART_DRAWER_WIDTH = 400;
@@ -98,7 +97,6 @@ function CartItemRow({
 
       <div className="cart-item-info">
         <p className="cart-item-name">{item.name}</p>
-        <p className="cart-item-sku">{getProductSku(item.productId)}</p>
         <p className="cart-item-meta">
           {item.color} · {item.size}
         </p>

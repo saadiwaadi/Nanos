@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   X,
   ChevronLeft,
@@ -129,6 +130,7 @@ function SizeGuideModal({ onClose }: { onClose: () => void }) {
 }
 
 export function ProductModal() {
+  const router = useRouter();
   const ctx = useProductModal();
   const cart = useCart();
   const { selectedProduct, closeProduct, openSizeGuide, sizeGuideOpen } = ctx;
@@ -299,6 +301,30 @@ export function ProductModal() {
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   }, [product, size, soldOut, colorName, qty, mainSrc, cart]);
+
+  const handleBuyNow = useCallback(() => {
+    if (!product || !size || soldOut(size)) return;
+    cart.addItem(
+      {
+        productId: product.id,
+        name: product.name,
+        color: colorName,
+        size,
+        price: product.price,
+        img: mainSrc ?? product.hero,
+      },
+      qty,
+    );
+    trackAddToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: qty,
+      currency: "PKR",
+    });
+    closeProduct();
+    router.push("/checkout");
+  }, [product, size, soldOut, colorName, qty, mainSrc, cart, closeProduct, router]);
 
   const cycleImg = useCallback(
     (dir: 1 | -1) => {
@@ -579,6 +605,19 @@ export function ProductModal() {
                       ? "Add to Cart"
                       : "Select a size"}
                 </span>
+              </button>
+              <button
+                type="button"
+                className="pmq-buy-now"
+                onClick={handleBuyNow}
+                disabled={!size || soldOut(size)}
+                aria-label={
+                  !size
+                    ? "Select a size to buy now"
+                    : `Buy now — ${fmtPrice(product.price * qty)}`
+                }
+              >
+                <span>Buy Now</span>
               </button>
               <button
                 type="button"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   X,
   ChevronLeft,
@@ -128,6 +129,7 @@ function SizeGuidePanel({ onClose }: { onClose: () => void }) {
 }
 
 export function ProductDetailPanel() {
+  const router = useRouter();
   const ctx = useProductModal();
   const cart = useCart();
   const { selectedProduct, closeProduct, openSizeGuide, sizeGuideOpen, detailPanelOpen, closeDetailPanel } = ctx;
@@ -328,6 +330,23 @@ export function ProductDetailPanel() {
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   }, [product, size, soldOut, colorName, qty, mainSrc, cart]);
+
+  const handleBuyNow = useCallback(() => {
+    if (!product || !size || soldOut(size)) return;
+    cart.addItem(
+      {
+        productId: product.id,
+        name: product.name,
+        color: colorName,
+        size,
+        price: product.price,
+        img: mainSrc ?? product.hero,
+      },
+      qty,
+    );
+    closeDetailPanel();
+    router.push("/checkout");
+  }, [product, size, soldOut, colorName, qty, mainSrc, cart, closeDetailPanel, router]);
 
   const cycleImg = useCallback(
     (dir: 1 | -1) => {
@@ -576,7 +595,7 @@ export function ProductDetailPanel() {
               </div>
             </div>
 
-            {/* Add to cart */}
+            {/* Add to cart & Buy Now */}
             <div className="pdp-actions">
               <button
                 type="button"
@@ -600,6 +619,19 @@ export function ProductDetailPanel() {
                       ? "Add to Cart"
                       : "Select a size"}
                 </span>
+              </button>
+              <button
+                type="button"
+                className="pdp-buy-now"
+                onClick={handleBuyNow}
+                disabled={!size || soldOut(size)}
+                aria-label={
+                  !size
+                    ? "Select a size to buy now"
+                    : `Buy now — ${fmtPrice(product.price * qty)}`
+                }
+              >
+                <span>Buy Now</span>
               </button>
               <button
                 type="button"

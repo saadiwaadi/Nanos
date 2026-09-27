@@ -54,7 +54,7 @@ export function CheckoutForm() {
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const isNameValid = name.trim().length >= 2;
   const isCityValid = city.trim().length > 0;
-  const isPostalValid = postal.trim().length >= 3;
+  const isPostalValid = true; // Postal code is optional
   const isPasswordValid = !createAccount || password.length >= 8;
 
   const isFormValid =
@@ -63,7 +63,6 @@ export function CheckoutForm() {
     isEmailValid &&
     isAddressValid &&
     isCityValid &&
-    isPostalValid &&
     isPasswordValid &&
     cart.items.length > 0;
 
@@ -303,21 +302,14 @@ export function CheckoutForm() {
                   )}
                 </div>
                 <div className="form-group">
-                  <label htmlFor="ship-postal">Postal Code</label>
+                  <label htmlFor="ship-postal">Postal Code (Optional)</label>
                   <input
                     type="text"
                     id="ship-postal"
-                    required
                     placeholder="54000"
                     value={postal}
                     onChange={(e) => setPostal(e.target.value)}
-                    onBlur={() => markTouched("postal")}
                   />
-                  {touched.postal && !isPostalValid && (
-                    <span style={{ color: "#c0392b", fontSize: 12, marginTop: 4, display: "block" }}>
-                      Please enter a valid postal code
-                    </span>
-                  )}
                 </div>
               </div>
 

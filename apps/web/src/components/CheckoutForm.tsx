@@ -8,6 +8,7 @@ import { useCart, fmtPrice } from "@/lib/cart";
 import { getToken, saveSession } from "@/lib/auth";
 import { API_BASE } from "@/lib/api";
 import { trackInitiateCheckout } from "@/lib/pixel";
+import { PAKISTAN_CITIES } from "@/lib/cities";
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -288,12 +289,11 @@ export function CheckoutForm() {
                     onBlur={() => markTouched("city")}
                   >
                     <option value="">Select city</option>
-                    <option>Lahore</option>
-                    <option>Karachi</option>
-                    <option>Islamabad</option>
-                    <option>Faisalabad</option>
-                    <option>Rawalpindi</option>
-                    <option>Multan</option>
+                    {PAKISTAN_CITIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
                   </select>
                   {touched.city && !isCityValid && (
                     <span style={{ color: "#c0392b", fontSize: 12, marginTop: 4, display: "block" }}>

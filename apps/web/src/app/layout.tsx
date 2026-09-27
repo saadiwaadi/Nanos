@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { ChromeShell } from "@/components/ChromeShell";
 import { SiteFooter } from "@/components/SiteFooter";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { META_PIXEL_ID } from "@/lib/pixel";
 
 const inter = Inter({
@@ -102,6 +103,7 @@ export default function RootLayout({
         )}
         <ChromeShell>{children}</ChromeShell>
         <SiteFooter />
+        <WhatsAppButton />
       </body>
     </html>
   );

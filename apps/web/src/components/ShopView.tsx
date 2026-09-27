@@ -21,8 +21,14 @@ export function ShopView({ products }: { products: Product[] }) {
 
         <div className="product-grid">
           {products.length === 0 ? (
-            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px 20px", color: "#777" }}>
-              No products available right now.
+            <div
+              className="empty-state"
+              style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px 20px" }}
+            >
+              <p style={{ marginBottom: 16 }}>No products found in this category right now.</p>
+              <Link href="/" className="btn btn-primary">
+                Back to Shop
+              </Link>
             </div>
           ) : (
             products.map((p) => (

@@ -16,7 +16,11 @@ export default async function HomePage() {
   } catch {
     // API down — sections below render their honest empty/slot states.
   }
-  const newArrivals = products.filter((p) => p.tag === "NEW").slice(0, 4);
+  const newArrivals = (
+    products.filter((p) => p.tag === "NEW").length > 0
+      ? products.filter((p) => p.tag === "NEW")
+      : products
+  ).slice(0, 4);
 
   return (
     <main>
@@ -24,37 +28,18 @@ export default async function HomePage() {
 
       <div className="wrap">
         {/* ---- New Arrivals (live data) ---- */}
-        <section className="section">
-          <div className="section-head">
-            <h2>New Arrivals</h2>
-          </div>
-          {newArrivals.length > 0 ? (
+        {newArrivals.length > 0 && (
+          <section className="section">
+            <div className="section-head">
+              <h2>New Arrivals</h2>
+            </div>
             <div className="product-grid">
               {newArrivals.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
-          ) : (
-            <div className="product-grid">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="product-card">
-                  <div className="product-thumb">
-                    <div className="thumb-slot">
-                      <span className="slot-box">
-                        <b className="slot-num">IMG-{10 + i}</b>
-                        [SLOT: PRODUCT-IMAGE]
-                        <span>catalog position {i + 1} — tag NEW to appear here</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="product-info">
-                    <h3>Product {i + 1}</h3>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* ---- Category promo tiles ---- */}
         <section className="section" style={{ paddingTop: 0 }}>

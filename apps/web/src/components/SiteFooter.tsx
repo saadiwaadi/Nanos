@@ -4,7 +4,8 @@ import Link from "next/link";
 // lucide stroke look. Size comes from the .footer-social svg CSS rule.
 const socialIcons = [
   {
-    label: "Instagram (placeholder)",
+    label: "Instagram",
+    href: "https://www.instagram.com/nanos_pk/",
     path: (
       <>
         <rect x="2.5" y="2.5" width="19" height="19" rx="5" />
@@ -14,11 +15,13 @@ const socialIcons = [
     ),
   },
   {
-    label: "Facebook (placeholder)",
+    label: "Facebook",
+    href: "https://www.facebook.com/nanos.pk",
     path: <path d="M15.5 3.5h-2.6a3.4 3.4 0 0 0-3.4 3.4v2.4H6.8v3.2h2.7v8h3.3v-8h2.7l.5-3.2h-3.2V7.2a.9.9 0 0 1 .9-.9h1.8z" />,
   },
   {
     label: "X / Twitter (placeholder)",
+    href: "#",
     path: (
       <>
         <path d="M4 4l16 16" />
@@ -42,7 +45,7 @@ export function SiteFooter() {
           <div className="footer-brand">
             <Link href="/" className="logo" aria-label="nanos.pk home">
               <img
-                src="https://res.cloudinary.com/tp1vyxi3/image/upload/v1789301766/ChatGPT_Image_Sep_13__2026__05_15_23_AM-removebg-preview.png"
+                src="https://res.cloudinary.com/wj34wxob/image/upload/v1790160668/ChatGPT_Image_Sep_13__2026__05_15_23_AM-removebg-preview.png"
                 alt="nanos.pk"
                 className="logo-img"
                 width={120}
@@ -120,7 +123,13 @@ export function SiteFooter() {
           <span>© 2026 nanos.pk — All rights reserved. (dummy)</span>
           <div className="footer-social">
             {socialIcons.map((icon) => (
-              <a key={icon.label} href="#" aria-label={icon.label}>
+              <a
+                key={icon.label}
+                href={icon.href}
+                target={icon.href !== "#" ? "_blank" : undefined}
+                rel={icon.href !== "#" ? "noopener noreferrer" : undefined}
+                aria-label={icon.label}
+              >
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"

@@ -27,7 +27,7 @@ export function SiteHeader({
 
         <Link href="/" className="logo" aria-label="nanos.pk home">
           <img
-            src="https://res.cloudinary.com/tp1vyxi3/image/upload/v1789301766/ChatGPT_Image_Sep_13__2026__05_15_23_AM-removebg-preview.png"
+            src="https://res.cloudinary.com/wj34wxob/image/upload/v1790160668/ChatGPT_Image_Sep_13__2026__05_15_23_AM-removebg-preview.png"
             alt="nanos.pk"
             className="logo-img"
             width={120}
